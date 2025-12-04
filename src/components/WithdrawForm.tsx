@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
+import { useNotification } from './NotificationProvider';
 
 export function WithdrawForm() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('');
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const { showSuccess, showError } = useNotification();
 
   // Check user's staked amount
   const { data: userInfo } = useReadContract({
@@ -33,17 +34,11 @@ export function WithdrawForm() {
     const stakedAmount = userInfo ? userInfo[0] : BigInt(0);
 
     if (withdrawAmount > stakedAmount) {
-      setNotification({
-        type: 'error',
-        message: `Insufficient staked amount. You have ${ethers.formatEther(stakedAmount)} tokens staked.`
-      });
-      setTimeout(() => setNotification(null), 5000);
+      showError('Insufficient Staked Amount', `You have ${ethers.formatEther(stakedAmount)} tokens staked.`);
       return;
     }
 
     try {
-      setNotification(null);
-
       await withdraw({
         address: stakingContractAddress,
         abi: stakingContractABI,
@@ -52,18 +47,10 @@ export function WithdrawForm() {
       });
 
       setAmount('');
-      setNotification({
-        type: 'success',
-        message: `Successfully withdrew ${amount} tokens!`
-      });
-      setTimeout(() => setNotification(null), 5000);
+      showSuccess('Withdrawal Successful!', `Successfully withdrew ${amount} HAPG tokens!`);
     } catch (error: unknown) {
       console.error('Withdraw failed:', error);
-      setNotification({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Withdrawal failed. Please try again.'
-      });
-      setTimeout(() => setNotification(null), 5000);
+      showError('Withdrawal Failed', error instanceof Error ? error.message : 'Withdrawal failed. Please try again.');
     }
   };
 
@@ -71,28 +58,6 @@ export function WithdrawForm() {
 
   return (
     <div className="space-y-4">
-      {/* Notification */}
-      {notification && (
-        <div className={`p-4 rounded-2xl border-2 ${
-          notification.type === 'success'
-            ? 'bg-green-50 border-green-200 text-green-800'
-            : 'bg-red-50 border-red-200 text-red-800'
-        }`}>
-          <div className="flex items-center">
-            <svg className={`w-5 h-5 mr-2 ${
-              notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {notification.type === 'success' ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              )}
-            </svg>
-            <p className="font-medium">{notification.message}</p>
-          </div>
-        </div>
-      )}
-
       {/* Staked Amount Display */}
       <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
         <p className="text-sm text-blue-800">
