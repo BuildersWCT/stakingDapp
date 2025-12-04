@@ -6,10 +6,20 @@ import { ClaimRewards } from './components/ClaimRewards';
 import { EmergencyWithdraw } from './components/EmergencyWithdraw';
 import { StakePosition } from './components/StakePosition';
 import { ProtocolStats } from './components/ProtocolStats';
+import { SubgraphStats } from './components/SubgraphStats';
+import { NotificationProvider, useNotification } from './components/NotificationProvider';
+import { NotificationContainer } from './components/ui/NotificationToast';
 
-export default function Home() {
+// Inner component that uses the notification hook
+const HomeContent = () => {
+  const { notifications, dismissNotification } = useNotification();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-25 to-purple-50 relative overflow-hidden">
+      <NotificationContainer 
+        notifications={notifications} 
+        onDismiss={dismissNotification} 
+      />
       {/* Decorative background elements */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-20 left-10 w-32 h-32 bg-rose-200 rounded-full opacity-20 blur-xl animate-pulse"></div>
@@ -154,6 +164,17 @@ export default function Home() {
           </div>
           <StakePosition />
         </div>
+
+        {/* Subgraph Analytics */}
+        <div className="mt-12 bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl border border-rose-100/50 p-8 hover:shadow-2xl transition-all duration-300 animate-fade-in delay-1000">
+          <div className="flex items-center mb-6">
+            <div className="w-3 h-12 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-full mr-4"></div>
+            <h2 className="text-2xl font-light text-gray-800" style={{ fontFamily: 'serif' }}>
+              Network Analytics
+            </h2>
+          </div>
+          <SubgraphStats />
+        </div>
       </main>
 
       {/* Footer */}
@@ -170,5 +191,14 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+};
+
+// Main export that wraps content with NotificationProvider
+export default function Home() {
+  return (
+    <NotificationProvider>
+      <HomeContent />
+    </NotificationProvider>
   );
 }
