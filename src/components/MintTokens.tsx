@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
+import { useNotification } from './NotificationProvider';
 
 export function MintTokens() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('100');
   const [timeUntilNextMint, setTimeUntilNextMint] = useState(0);
   const [canMint, setCanMint] = useState(false);
+  const { showSuccess, showError } = useNotification();
 
   const { writeContractAsync: mint, data: mintTxHash } = useWriteContract();
 
@@ -66,7 +68,7 @@ export function MintTokens() {
     // Validate amount
     const mintAmount = parseFloat(amount);
     if (mintAmount <= 0 || mintAmount > 100) {
-      alert('Please enter an amount between 1 and 100 tokens.');
+      showError('Invalid Amount', 'Please enter an amount between 1 and 100 tokens.');
       return;
     }
 
@@ -83,8 +85,10 @@ export function MintTokens() {
       localStorage.setItem(lastMintKey, Date.now().toString());
 
       setAmount('100'); // Reset to default
+      showSuccess('Tokens Minted!', `Successfully minted ${amount} HAPG tokens!`);
     } catch (error) {
       console.error('Mint failed:', error);
+      showError('Mint Failed', error instanceof Error ? error.message : 'Mint failed. Please try again.');
     }
   };
 
