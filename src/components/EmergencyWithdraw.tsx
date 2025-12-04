@@ -109,7 +109,7 @@ export function EmergencyWithdraw() {
       <button
         onClick={handleEmergencyWithdraw}
         disabled={!address || isEmergencyLoading || stakedAmount === BigInt(0)}
-        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 disabled:transform-none"
+        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed btn-crystal-primary btn-glow-red btn-ripple shadow-crystal"
       >
         {isEmergencyLoading ? (
           <div className="flex items-center justify-center">

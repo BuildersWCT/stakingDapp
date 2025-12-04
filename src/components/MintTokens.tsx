@@ -168,7 +168,7 @@ export function MintTokens() {
         <button
           onClick={handleMint}
           disabled={!address || !amount || !canMint || isMintLoading || parseFloat(amount) > 100}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 disabled:transform-none border-2 border-purple-500/30"
+          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-purple-500/30 btn-crystal-primary btn-glow-purple btn-ripple shadow-crystal"
         >
           {isMintLoading ? (
             <div className="flex items-center justify-center">

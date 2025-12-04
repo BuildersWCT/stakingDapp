@@ -152,6 +152,50 @@
   opacity: 1;
 }
 
+.btn-glow-red {
+  position: relative;
+}
+
+.btn-glow-red::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1));
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.btn-glow-red:hover::before {
+  opacity: 1;
+}
+
+.btn-glow-purple {
+  position: relative;
+}
+
+.btn-glow-purple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.1));
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.btn-glow-purple:hover::before {
+  opacity: 1;
+}
+
 /* Enhanced shadow variants */
 .shadow-crystal {
   box-shadow: 
