@@ -16,13 +16,13 @@ export function ConnectWallet() {
         </div>
         <button
           onClick={() => open({ view: 'Account' })}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium btn-crystal-secondary btn-glow-blue btn-ripple"
         >
           {address.slice(0, 6)}...{address.slice(-4)}
         </button>
         <button
           onClick={() => open({ view: 'Networks' })}
-          className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+          className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm btn-crystal-utility btn-glow-gray btn-ripple"
         >
           🔗
         </button>
@@ -34,7 +34,7 @@ export function ConnectWallet() {
     <div className="flex justify-end mb-8">
       <button
         onClick={() => open({ view: 'Connect' })}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple"
       >
         Connect Wallet
       </button>
