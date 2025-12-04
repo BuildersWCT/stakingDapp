@@ -9,6 +9,7 @@ import { ProtocolStats } from './components/ProtocolStats';
 import { SubgraphStats } from './components/SubgraphStats';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { NotificationContainer } from './components/ui/NotificationToast';
+import { NotificationTest } from './components/NotificationTest';
 
 // Inner component that uses the notification hook
 const HomeContent = () => {
@@ -79,6 +80,11 @@ const HomeContent = () => {
             </div>
             <ProtocolStats />
           </div>
+        </div>
+
+        {/* Notification Test Section */}
+        <div className="mb-12">
+          <NotificationTest />
         </div>
 
         {/* Mint Tokens Section */}
