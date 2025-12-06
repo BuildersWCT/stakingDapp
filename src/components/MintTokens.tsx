@@ -3,6 +3,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
+import { Tooltip, HelpIcon, InfoCard } from './ui';
 
 export function MintTokens() {
   const { address } = useAccount();
@@ -107,11 +108,40 @@ export function MintTokens() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="text-lg font-semibold text-gray-900">Mint Test Tokens</h3>
           <p className="text-sm text-gray-600">Get tokens instantly to test staking</p>
         </div>
+        <HelpIcon
+          content="Mint free test HAPG tokens for demo purposes. These tokens work exactly like real tokens but have no real value."
+          position="left"
+          variant="primary"
+          size="sm"
+        />
       </div>
+
+      {/* Minting Information */}
+      <InfoCard
+        title="About Test Token Minting"
+        description={
+          <div className="space-y-2">
+            <p>Mint free HAPG test tokens to explore the Crystal Stakes protocol without using real funds.</p>
+            <div className="text-xs space-y-1">
+              <p>• <strong>Purpose:</strong> Testing and demonstration only</p>
+              <p>• <strong>Value:</strong> No real monetary value</p>
+              <p>• <strong>Rate Limit:</strong> Once per 24 hours to prevent abuse</p>
+              <p>• <strong>Gas Fees:</strong> No gas fees required for minting</p>
+            </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
+              <p className="text-xs text-amber-700 font-medium">⚠️ Note: Test tokens are for demo purposes only and cannot be exchanged for real value.</p>
+            </div>
+          </div>
+        }
+        variant="info"
+        helpContent="Test tokens allow you to experience the full staking workflow safely without financial risk."
+        collapsible={true}
+        defaultExpanded={false}
+      />
 
       {address && (
         <div className="mb-4 p-3 bg-white rounded-lg border">
@@ -125,8 +155,14 @@ export function MintTokens() {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Amount to Mint (Max: 100 tokens)
+          <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
+            <span>Amount to Mint (Max: 100 tokens)</span>
+            <HelpIcon
+              content="Enter the number of test tokens you want to mint. Minimum 1 token, maximum 100 tokens per 24-hour period."
+              position="right"
+              variant="subtle"
+              size="sm"
+            />
           </label>
           <input
             type="number"
@@ -169,27 +205,29 @@ export function MintTokens() {
           </div>
         )}
 
-        <button
-          onClick={handleMint}
-          disabled={!address || !amount || !canMint || isMintLoading || parseFloat(amount) > 100}
-          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-purple-500/30 btn-crystal-primary btn-glow-purple btn-ripple shadow-crystal"
-        >
-          {isMintLoading ? (
-            <div className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Minting...
-            </div>
-          ) : !canMint ? (
-            'Cooldown Active'
-          ) : parseFloat(amount) > 100 ? (
-            'Maximum 100 tokens'
-          ) : (
-            `Mint ${amount || '0'} TEST Tokens`
-          )}
-        </button>
+        <Tooltip content="Get test tokens for the demo">
+          <button
+            onClick={handleMint}
+            disabled={!address || !amount || !canMint || isMintLoading || parseFloat(amount) > 100}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-purple-500/30 btn-crystal-primary btn-glow-purple btn-ripple shadow-crystal"
+          >
+            {isMintLoading ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Minting...
+              </div>
+            ) : !canMint ? (
+              'Cooldown Active'
+            ) : parseFloat(amount) > 100 ? (
+              'Maximum 100 tokens'
+            ) : (
+              `Mint ${amount || '0'} TEST Tokens`
+            )}
+          </button>
+        </Tooltip>
       </div>
 
       <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
