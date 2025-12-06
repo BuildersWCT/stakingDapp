@@ -156,7 +156,7 @@ export const EnhancedInput = forwardRef<HTMLInputElement, EnhancedInputProps>(
 
           {/* Success Icon */}
           {success && !error && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-fade-in">
               <svg
                 className="w-5 h-5 text-emerald-500"
                 fill="currentColor"
@@ -173,7 +173,7 @@ export const EnhancedInput = forwardRef<HTMLInputElement, EnhancedInputProps>(
 
           {/* Error Icon */}
           {error && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 animate-shake">
               <svg
                 className="w-5 h-5 text-red-500"
                 fill="currentColor"
