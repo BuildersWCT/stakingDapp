@@ -1,11 +1,27 @@
-import { useAppKit, useAppKitState } from '@reown/appkit/react'
-import { useAccount } from 'wagmi'
-import { HelpIcon } from './ui'
+import { useState } from 'react';
+import { useAppKit, useAppKitState } from '@reown/appkit/react';
+import { useAccount } from 'wagmi';
+import { HelpIcon, WalletNotConnectedMessage } from './ui';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function ConnectWallet() {
-  const { open } = useAppKit()
-  const { address, isConnected } = useAccount()
-  const { selectedNetworkId } = useAppKitState()
+  const { open } = useAppKit();
+  const { address, isConnected, isConnecting } = useAccount();
+  const { selectedNetworkId } = useAppKitState();
+  const [showConnectionError, setShowConnectionError] = useState(false);
+  const { handleWalletError } = useErrorHandler({
+    onConnectWallet: () => open({ view: 'Connect' }),
+  });
+
+  const handleConnectClick = () => {
+    setShowConnectionError(false);
+    open({ view: 'Connect' });
+  };
+
+  const handleConnectError = () => {
+    setShowConnectionError(true);
+    handleWalletError();
+  };
 
   if (isConnected && address) {
     return (
@@ -48,24 +64,34 @@ export function ConnectWallet() {
           </button>
         </HelpIcon>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="flex justify-end mb-8">
-      <HelpIcon
-        content="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
-        position="bottom"
-        variant="primary"
-        size="sm"
-      >
-        <button
-          onClick={() => open({ view: 'Connect' })}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple"
+    <div className="flex justify-end mb-8 space-y-4 flex-col">
+      <div className="flex justify-end">
+        <HelpIcon
+          content="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
+          position="bottom"
+          variant="primary"
+          size="sm"
         >
-          Connect Wallet
-        </button>
-      </HelpIcon>
+          <button
+            onClick={handleConnectClick}
+            disabled={isConnecting}
+            className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+          </button>
+        </HelpIcon>
+      </div>
+      
+      {/* Show connection error message */}
+      {showConnectionError && (
+        <div className="flex justify-end">
+          <WalletNotConnectedMessage onConnect={handleConnectError} />
+        </div>
+      )}
     </div>
-  )
+  );
 }
