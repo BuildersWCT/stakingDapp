@@ -1,69 +1,80 @@
 /* Enhanced Button Animation Classes for Crystal Stakes */
 
-/* Base button animation styles */
+/* Crystal Button Base Styles */
 .btn-crystal {
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all var(--crystal-transition-normal);
   position: relative;
   overflow: hidden;
+  border-radius: 16px;
+  font-weight: 600;
 }
 
-/* Primary button with subtle scale and glow */
+/* Crystal Primary Button */
 .btn-crystal-primary {
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  background: var(--crystal-gradient-button);
+  border: 2px solid var(--crystal-primary-400);
+  color: white;
+  padding: 0.75em 1.5em;
+  box-shadow: var(--crystal-shadow-md);
 }
 
 .btn-crystal-primary:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--crystal-shadow-xl), var(--crystal-shadow-glow);
+  border-color: var(--crystal-primary-500);
 }
 
 .btn-crystal-primary:active {
-  transform: scale(0.98) translateY(0px);
-  transition-duration: 150ms;
+  transform: translateY(-1px) scale(0.98);
+  transition-duration: var(--crystal-transition-fast);
+  box-shadow: var(--crystal-shadow-sm);
 }
 
-/* Secondary button with gentle animation */
+/* Crystal Secondary Button */
 .btn-crystal-secondary {
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  background: var(--crystal-glass-bg);
+  border: 2px solid var(--crystal-border-light);
+  color: var(--crystal-text-primary);
+  padding: 0.75em 1.5em;
+  backdrop-filter: blur(12px);
 }
 
 .btn-crystal-secondary:hover {
-  transform: scale(1.03) translateY(-1px);
-  box-shadow: 
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px) scale(1.02);
+  background: var(--crystal-primary-50);
+  border-color: var(--crystal-border-medium);
+  box-shadow: var(--crystal-shadow-lg);
 }
 
 .btn-crystal-secondary:active {
-  transform: scale(0.99) translateY(0px);
-  transition-duration: 150ms;
+  transform: translateY(0) scale(0.98);
+  transition-duration: var(--crystal-transition-fast);
+  box-shadow: var(--crystal-shadow-sm);
 }
 
-/* Utility button with subtle interaction */
+/* Crystal Utility Button */
 .btn-crystal-utility {
-  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
+  background: var(--crystal-neutral-100);
+  border: 2px solid var(--crystal-neutral-200);
+  color: var(--crystal-text-secondary);
+  padding: 0.5em 1em;
+  font-size: 0.875em;
 }
 
 .btn-crystal-utility:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px) scale(1.01);
+  background: var(--crystal-neutral-200);
+  border-color: var(--crystal-neutral-300);
+  color: var(--crystal-text-primary);
+  box-shadow: var(--crystal-shadow-md);
 }
 
 .btn-crystal-utility:active {
-  transform: scale(0.99);
-  transition-duration: 150ms;
+  transform: translateY(0) scale(0.99);
+  transition-duration: var(--crystal-transition-fast);
 }
 
-/* Glow effects for different button types */
+/* Crystal Glow Effects */
 .btn-glow-green {
   position: relative;
 }
@@ -76,10 +87,11 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+  background: linear-gradient(45deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
 .btn-glow-green:hover::before {
@@ -98,21 +110,22 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+  background: linear-gradient(45deg, var(--crystal-accent-blue), rgba(59, 130, 246, 0.2));
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
 .btn-glow-blue:hover::before {
   opacity: 1;
 }
 
-.btn-glow-yellow {
+.btn-glow-crystal {
   position: relative;
 }
 
-.btn-glow-yellow::before {
+.btn-glow-crystal::before {
   content: '';
   position: absolute;
   top: 0;
@@ -120,21 +133,45 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+  background: var(--crystal-gradient-primary);
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
-.btn-glow-yellow:hover::before {
+.btn-glow-crystal:hover::before {
+  opacity: 0.3;
+}
+
+.btn-glow-amber {
+  position: relative;
+}
+
+.btn-glow-amber::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  background: linear-gradient(45deg, var(--crystal-accent-amber), rgba(245, 158, 11, 0.2));
+  opacity: 0;
+  transition: opacity var(--crystal-transition-normal);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.btn-glow-amber:hover::before {
   opacity: 1;
 }
 
-.btn-glow-gray {
+.btn-glow-emerald {
   position: relative;
 }
 
-.btn-glow-gray::before {
+.btn-glow-emerald::before {
   content: '';
   position: absolute;
   top: 0;
@@ -142,13 +179,14 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(107, 114, 128, 0.1), rgba(75, 85, 99, 0.1));
+  background: linear-gradient(45deg, var(--crystal-accent-emerald), rgba(16, 185, 129, 0.2));
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
-.btn-glow-gray:hover::before {
+.btn-glow-emerald:hover::before {
   opacity: 1;
 }
 
@@ -164,10 +202,11 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1));
+  background: linear-gradient(45deg, var(--crystal-accent-red), rgba(239, 68, 68, 0.2));
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
 .btn-glow-red:hover::before {
@@ -186,31 +225,39 @@
   right: 0;
   bottom: 0;
   border-radius: inherit;
-  background: linear-gradient(45deg, rgba(147, 51, 234, 0.1), rgba(126, 34, 206, 0.1));
+  background: linear-gradient(45deg, var(--crystal-secondary-500), rgba(168, 85, 247, 0.2));
   opacity: 0;
-  transition: opacity 300ms ease;
+  transition: opacity var(--crystal-transition-normal);
   pointer-events: none;
+  z-index: -1;
 }
 
 .btn-glow-purple:hover::before {
   opacity: 1;
 }
 
-/* Enhanced shadow variants */
+/* Crystal Shadow Variants */
 .shadow-crystal {
-  box-shadow: 
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--crystal-shadow-md);
 }
 
 .shadow-crystal-hover {
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--crystal-shadow-xl), var(--crystal-shadow-glow);
 }
 
-/* Ripple effect for touch devices */
+.shadow-crystal-sm {
+  box-shadow: var(--crystal-shadow-sm);
+}
+
+.shadow-crystal-lg {
+  box-shadow: var(--crystal-shadow-lg);
+}
+
+.shadow-crystal-xl {
+  box-shadow: var(--crystal-shadow-xl);
+}
+
+/* Crystal Ripple Effect */
 .btn-ripple {
   position: relative;
   overflow: hidden;
@@ -224,9 +271,10 @@
   width: 0;
   height: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.4);
   transform: translate(-50%, -50%);
-  transition: width 300ms, height 300ms;
+  transition: width var(--crystal-transition-slow), height var(--crystal-transition-slow);
+  z-index: 0;
 }
 
 .btn-ripple:active::after {
@@ -234,79 +282,207 @@
   height: 300px;
 }
 
-/* Enhanced focus styles for accessibility */
+.btn-ripple > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Crystal Focus Styles for Accessibility */
 .btn-crystal:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.3);
 }
 
 .btn-crystal:focus-visible {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.7);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--crystal-primary-400);
 }
 
-/* High contrast focus for better accessibility */
+/* Crystal High Contrast Focus States */
 .btn-crystal-primary:focus-visible {
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.7);
+  box-shadow: 0 0 0 3px var(--crystal-primary-400), 0 0 0 6px rgba(244, 114, 182, 0.2);
 }
 
 .btn-crystal-secondary:focus-visible {
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.7);
+  box-shadow: 0 0 0 3px var(--crystal-accent-blue), 0 0 0 6px rgba(59, 130, 246, 0.2);
 }
 
 .btn-crystal-utility:focus-visible {
-  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.7);
+  box-shadow: 0 0 0 3px var(--crystal-neutral-500), 0 0 0 6px rgba(107, 114, 128, 0.2);
 }
 
-/* Skip link for keyboard navigation */
+/* Crystal Success Button */
+.btn-crystal-success {
+  background: linear-gradient(135deg, var(--crystal-accent-emerald) 0%, #059669 100%);
+  border: 2px solid var(--crystal-accent-emerald);
+  color: white;
+  padding: 0.75em 1.5em;
+  box-shadow: var(--crystal-shadow-md);
+}
+
+.btn-crystal-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--crystal-shadow-lg);
+}
+
+/* Crystal Warning Button */
+.btn-crystal-warning {
+  background: linear-gradient(135deg, var(--crystal-accent-amber) 0%, #d97706 100%);
+  border: 2px solid var(--crystal-accent-amber);
+  color: white;
+  padding: 0.75em 1.5em;
+  box-shadow: var(--crystal-shadow-md);
+}
+
+.btn-crystal-warning:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--crystal-shadow-lg);
+}
+
+/* Crystal Danger Button */
+.btn-crystal-danger {
+  background: linear-gradient(135deg, var(--crystal-accent-red) 0%, #dc2626 100%);
+  border: 2px solid var(--crystal-accent-red);
+  color: white;
+  padding: 0.75em 1.5em;
+  box-shadow: var(--crystal-shadow-md);
+}
+
+.btn-crystal-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--crystal-shadow-lg);
+}
+
+/* Crystal Skip Link for Keyboard Navigation */
 .skip-link {
   position: absolute;
   top: -40px;
   left: 6px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px;
+  background: var(--crystal-neutral-800);
+  color: var(--crystal-neutral-100);
+  padding: 0.5em 1em;
   text-decoration: none;
   z-index: 1000;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: top var(--crystal-transition-fast);
+  border: 2px solid var(--crystal-primary-400);
 }
 
 .skip-link:focus {
   top: 6px;
+  box-shadow: 0 0 0 3px var(--crystal-primary-400);
 }
 
-/* Reduced motion support */
+/* Crystal Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .btn-crystal,
   .btn-crystal-primary,
   .btn-crystal-secondary,
-  .btn-crystal-utility {
+  .btn-crystal-utility,
+  .btn-crystal-success,
+  .btn-crystal-warning,
+  .btn-crystal-danger {
     transition: none;
   }
   
   .btn-crystal:hover,
   .btn-crystal-primary:hover,
   .btn-crystal-secondary:hover,
-  .btn-crystal-utility:hover {
+  .btn-crystal-utility:hover,
+  .btn-crystal-success:hover,
+  .btn-crystal-warning:hover,
+  .btn-crystal-danger:hover {
     transform: none;
+  }
+  
+  .crystal-pulse {
+    animation: none;
+  }
+  
+  .crystal-gradient-text {
+    animation: none;
   }
 }
 
-/* Mobile touch improvements */
+/* Crystal Mobile Touch Improvements */
 @media (hover: none) and (pointer: coarse) {
   .btn-crystal-primary:hover,
   .btn-crystal-secondary:hover,
-  .btn-crystal-utility:hover {
+  .btn-crystal-utility:hover,
+  .btn-crystal-success:hover,
+  .btn-crystal-warning:hover,
+  .btn-crystal-danger:hover {
     transform: none;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--crystal-shadow-md);
   }
   
   .btn-crystal-primary:active,
   .btn-crystal-secondary:active,
-  .btn-crystal-utility:active {
+  .btn-crystal-utility:active,
+  .btn-crystal-success:active,
+  .btn-crystal-warning:active,
+  .btn-crystal-danger:active {
     transform: scale(0.95);
-    transition-duration: 100ms;
+    transition-duration: var(--crystal-transition-fast);
   }
+}
+
+/* Crystal Button Loading States */
+.btn-crystal-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-crystal-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.25em;
+  height: 1.25em;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: crystal-spin 1s linear infinite;
+}
+
+@keyframes crystal-spin {
+  to { 
+    transform: translate(-50%, -50%) rotate(360deg); 
+  }
+}
+
+/* Crystal Button Sizes */
+.btn-crystal-sm {
+  padding: 0.5em 1em;
+  font-size: 0.875em;
+}
+
+.btn-crystal-lg {
+  padding: 1em 2em;
+  font-size: 1.125em;
+}
+
+.btn-crystal-xl {
+  padding: 1.25em 2.5em;
+  font-size: 1.25em;
+}
+
+/* Crystal Disabled States */
+.btn-crystal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: var(--crystal-shadow-sm) !important;
+}
+
+.btn-crystal:disabled:hover {
+  transform: none !important;
+  box-shadow: var(--crystal-shadow-sm) !important;
 }

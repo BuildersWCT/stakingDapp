@@ -92,8 +92,8 @@ export function StakeForm() {
               <p>• <strong>Minimum:</strong> 50 HAPG tokens required to stake</p>
               <p>• <strong>Gas Fees:</strong> Estimated 0.001-0.003 ETH for transactions</p>
             </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2">
-              <p className="text-xs text-amber-700 font-medium">⚠️ Safety Warning: Only stake what you can afford to lock up. Large amounts should be staked carefully.</p>
+            <div className="border rounded-lg p-2 mt-2" style={{ background: 'rgba(245, 158, 11, 0.05)', borderColor: 'var(--crystal-accent-amber)' }}>
+              <p className="text-xs font-medium" style={{ color: 'var(--crystal-accent-amber)' }}>⚠️ Safety Warning: Only stake what you can afford to lock up. Large amounts should be staked carefully.</p>
             </div>
           </div>
         }
@@ -105,15 +105,15 @@ export function StakeForm() {
 
       {/* Balance Display */}
       {userBalance && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
-          <p className="text-sm text-blue-800">
+        <div className="border rounded-2xl p-4 crystal-glass">
+          <p className="text-sm" style={{ color: 'var(--crystal-accent-blue)' }}>
             <span className="font-medium">Available Balance:</span> {parseFloat(ethers.formatEther(userBalance)).toFixed(2)} HAPG tokens
           </p>
         </div>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
+        <label className="block text-sm font-medium mb-2 flex items-center space-x-2" style={{ color: 'var(--crystal-text-primary)' }}>
           <span>Amount to Stake (Minimum: 50 HAPG)</span>
           <HelpIcon
             content="Enter the amount of HAPG tokens you want to stake. The minimum amount is 50 tokens. Higher amounts may earn more rewards proportionally."
@@ -128,14 +128,15 @@ export function StakeForm() {
           onChange={(e) => setAmount(e.target.value)}
           placeholder="50.00"
           min="50"
-          className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium"
+          className="w-full px-4 py-3 crystal-input"
+          style={{ color: 'var(--crystal-text-primary)' }}
         />
       </div>
       <Tooltip content="Earn rewards by locking your tokens">
         <button
           onClick={handleStake}
           disabled={!address || !amount || step !== 'idle' || !userBalance || ethers.parseEther(amount || '0') > userBalance || parseFloat(amount || '0') < 50}
-          className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-green-500/30 btn-crystal-primary btn-glow-green btn-ripple shadow-crystal"
+          className="w-full btn-crystal-success btn-glow-emerald btn-ripple"
         >
           {step === 'approving' ? (
             <div className="flex items-center justify-center">
