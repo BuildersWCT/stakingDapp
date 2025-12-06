@@ -294,7 +294,7 @@ export function StakeForm() {
             showMinimumAmountError 
               ? "Minimum stake amount is 50 HAPG tokens" 
               : showInsufficientFundsError 
-              ? "Insufficient balance for this amount"
+              ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
               : undefined
           }
           success={
