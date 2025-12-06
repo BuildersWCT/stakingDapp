@@ -3,7 +3,17 @@ import { useWriteContract, useAccount, useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI, testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { Tooltip, HelpIcon, InfoCard, MinimumAmountMessage, InsufficientFundsMessage, TransactionFailedMessage } from './ui';
+import { 
+  Tooltip, 
+  HelpIcon, 
+  InfoCard, 
+  MinimumAmountMessage, 
+  InsufficientFundsMessage, 
+  TransactionFailedMessage,
+  NetworkSwitchMessage,
+  NetworkSwitchFailedMessage,
+  GasEstimateMessage
+} from './ui';
 import { StepIndicator, stakingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
@@ -15,15 +25,28 @@ export function StakeForm() {
   const [showMinimumAmountError, setShowMinimumAmountError] = useState(false);
   const [showInsufficientFundsError, setShowInsufficientFundsError] = useState(false);
   const [showTransactionError, setShowTransactionError] = useState(false);
+  const [showNetworkSwitchError, setShowNetworkSwitchError] = useState(false);
+  const [showGasFeeWarning, setShowGasFeeWarning] = useState(false);
+  const [estimatedGasFee, setEstimatedGasFee] = useState('');
   const { showSuccess } = useNotification();
-  const { handleInsufficientFunds, handleTransactionError } = useErrorHandler({
+  const { 
+    handleInsufficientFunds, 
+    handleTransactionError,
+    handleNetworkSwitchError 
+  } = useErrorHandler({
     onRetry: () => {
       setShowTransactionError(false);
+      setShowNetworkSwitchError(false);
       handleStake();
     },
     onGetTokens: () => {
       // This would open a modal or redirect to get tokens
       console.log('Open get tokens modal');
+    },
+    onSwitchNetwork: () => {
+      setShowNetworkSwitchError(false);
+      // This would open network switch modal
+      console.log('Open network switch modal');
     },
   });
 
@@ -51,6 +74,8 @@ export function StakeForm() {
     setShowMinimumAmountError(false);
     setShowInsufficientFundsError(false);
     setShowTransactionError(false);
+    setShowNetworkSwitchError(false);
+    setShowGasFeeWarning(false);
 
     // Check minimum stake amount
     const stakeAmountNum = parseFloat(amount);
@@ -100,11 +125,26 @@ export function StakeForm() {
       console.error('Transaction failed:', error);
       setStep('idle');
       setIsLoading(false);
-      setShowTransactionError(true);
-      handleTransactionError(error, () => {
-        setShowTransactionError(false);
-        handleStake();
-      });
+      
+      // Enhanced error handling with specific error types
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
+      
+      if (errorMessage.includes('network') && errorMessage.includes('switch')) {
+        setShowNetworkSwitchError(true);
+        handleNetworkSwitchError(() => {
+          setShowNetworkSwitchError(false);
+          handleStake();
+        });
+      } else if (errorMessage.includes('gas') && errorMessage.includes('too low')) {
+        setShowGasFeeWarning(true);
+        setEstimatedGasFee('0.005 ETH');
+      } else {
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleStake();
+        });
+      }
     }
   };
 
@@ -204,6 +244,29 @@ export function StakeForm() {
         />
       )}
 
+      {showNetworkSwitchError && (
+        <NetworkSwitchFailedMessage
+          onRetry={() => {
+            setShowNetworkSwitchError(false);
+            handleStake();
+          }}
+          onSwitchManually={() => {
+            // This would open manual network switch instructions
+            console.log('Open manual network switch instructions');
+          }}
+        />
+      )}
+
+      {showGasFeeWarning && (
+        <GasEstimateMessage
+          estimated={estimatedGasFee}
+          onContinue={() => {
+            setShowGasFeeWarning(false);
+            handleStake();
+          }}
+        />
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-2 flex items-center space-x-2" style={{ color: 'var(--crystal-text-primary)' }}>
           <span>Amount to Stake (Minimum: 50 HAPG)</span>
@@ -220,9 +283,12 @@ export function StakeForm() {
           onChange={(e) => {
             setAmount(e.target.value);
             // Clear error messages when user starts typing
-            if (showMinimumAmountError || showInsufficientFundsError) {
+            if (showMinimumAmountError || showInsufficientFundsError || showTransactionError || showNetworkSwitchError || showGasFeeWarning) {
               setShowMinimumAmountError(false);
               setShowInsufficientFundsError(false);
+              setShowTransactionError(false);
+              setShowNetworkSwitchError(false);
+              setShowGasFeeWarning(false);
             }
           }}
           placeholder="50.00"

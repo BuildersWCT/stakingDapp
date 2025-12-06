@@ -12,6 +12,13 @@ export type ErrorType =
   | 'user_rejected'
   | 'gas_too_low'
   | 'contract_error'
+  | 'network_switch_failed'
+  | 'connection_timeout'
+  | 'high_gas_fee'
+  | 'unsupported_wallet'
+  | 'insufficient_staked_amount'
+  | 'withdrawal_failed'
+  | 'staking_failed'
   | 'unknown';
 
 export interface ErrorInfo {
@@ -79,6 +86,48 @@ const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorInfo, 'shouldNotify'>> = {
     message: 'Contract interaction failed',
     userMessage: 'There was an issue with the smart contract. This might be due to contract state or parameters.',
   },
+  network_switch_failed: {
+    type: 'network_switch_failed',
+    title: 'Network Switch Failed',
+    message: 'Could not switch network automatically',
+    userMessage: 'We couldn\'t automatically switch your network. Please try again or switch manually in your wallet settings.',
+  },
+  connection_timeout: {
+    type: 'connection_timeout',
+    title: 'Connection Timeout',
+    message: 'Wallet connection is taking too long',
+    userMessage: 'The connection to your wallet is taking longer than expected. This might be due to network issues or wallet extension problems.',
+  },
+  high_gas_fee: {
+    type: 'high_gas_fee',
+    title: 'High Gas Fee',
+    message: 'Gas fee estimate is unusually high',
+    userMessage: 'The estimated gas fee is higher than usual. You can proceed if you accept the cost, or try again later when fees are lower.',
+  },
+  unsupported_wallet: {
+    type: 'unsupported_wallet',
+    title: 'Unsupported Wallet',
+    message: 'Current wallet is not fully supported',
+    userMessage: 'This wallet isn\'t fully supported. Please use MetaMask, WalletConnect, or another supported wallet for the best experience.',
+  },
+  insufficient_staked_amount: {
+    type: 'insufficient_staked_amount',
+    title: 'Insufficient Staked Amount',
+    message: 'Not enough tokens are staked',
+    userMessage: 'You don\'t have enough HAPG tokens staked to withdraw this amount. Please check your staked balance and try again.',
+  },
+  withdrawal_failed: {
+    type: 'withdrawal_failed',
+    title: 'Withdrawal Failed',
+    message: 'Could not process withdrawal',
+    userMessage: 'The withdrawal transaction failed. Please check your staked amount and try again, or contact support if the issue persists.',
+  },
+  staking_failed: {
+    type: 'staking_failed',
+    title: 'Staking Failed',
+    message: 'Could not process staking',
+    userMessage: 'The staking transaction failed. Please check your token balance and try again, or contact support if the issue persists.',
+  },
   unknown: {
     type: 'unknown',
     title: 'Something Went Wrong',
@@ -98,6 +147,13 @@ const ACTION_LABELS: Record<ErrorType, string | undefined> = {
   user_rejected: 'Try Again',
   gas_too_low: 'Retry with Higher Gas',
   contract_error: 'Try Again',
+  network_switch_failed: 'Try Again',
+  connection_timeout: 'Retry Connection',
+  high_gas_fee: 'Continue Anyway',
+  unsupported_wallet: 'Get Supported Wallets',
+  insufficient_staked_amount: 'Set Maximum',
+  withdrawal_failed: 'Try Again',
+  staking_failed: 'Try Again',
   unknown: 'Try Again',
 };
 
@@ -146,6 +202,26 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
     // Contract errors
     if (errorMessage.includes('contract') || errorMessage.includes('execution reverted')) {
       return 'contract_error';
+    }
+    
+    // Network switch errors
+    if (errorMessage.includes('switch') && errorMessage.includes('network')) {
+      return 'network_switch_failed';
+    }
+    
+    // Timeout errors
+    if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+      return 'connection_timeout';
+    }
+    
+    // High gas fee
+    if (errorMessage.includes('high') && errorMessage.includes('gas')) {
+      return 'high_gas_fee';
+    }
+    
+    // Unsupported wallet
+    if (errorMessage.includes('unsupported') || errorMessage.includes('not supported')) {
+      return 'unsupported_wallet';
     }
     
     return 'unknown';
@@ -224,8 +300,37 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
     }
   }, [parseError, showError, showWarning]);
 
+  const handleNetworkSwitchError = useCallback((onRetry?: () => void, onSwitchManually?: () => void) => {
+    showError(
+      'Network Switch Failed',
+      'We couldn\'t automatically switch your network. Please try again or switch manually in your wallet settings.',
+    );
+    
+    if (onRetry) {
+      setTimeout(onRetry, 2000);
+    }
+  }, [showError]);
+
+  const handleConnectionTimeout = useCallback((onRetry?: () => void) => {
+    showWarning(
+      'Connection Timeout',
+      'The connection to your wallet is taking longer than expected. This might be due to network issues or wallet extension problems.',
+    );
+    
+    if (onRetry) {
+      setTimeout(onRetry, 3000);
+    }
+  }, [showWarning]);
+
+  const handleInsufficientStakedAmount = useCallback((available: string, required: string) => {
+    showError(
+      'Insufficient Staked Amount',
+      `You have ${available} HAPG tokens staked, but you're trying to withdraw ${required} tokens. Please check your staked balance.`,
+    );
+  }, [showError]);
+
   // Create actionable error messages for UI components
-  const createErrorMessage = useCallback((errorType: ErrorType, context?: any) => {
+  const createErrorMessage = useCallback((errorType: ErrorType) => {
     const template = ERROR_MESSAGES[errorType];
     const actionLabel = ACTION_LABELS[errorType];
     
@@ -241,10 +346,23 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
       case 'network_error':
       case 'transaction_failed':
       case 'user_rejected':
+      case 'network_switch_failed':
+      case 'connection_timeout':
+      case 'withdrawal_failed':
+      case 'staking_failed':
         actionHandler = options.onRetry;
         break;
       case 'network_mismatch':
         actionHandler = options.onSwitchNetwork;
+        break;
+      case 'high_gas_fee':
+        actionHandler = options.onRetry;
+        break;
+      case 'unsupported_wallet':
+        actionHandler = options.onContactSupport;
+        break;
+      case 'insufficient_staked_amount':
+        actionHandler = options.onRetry;
         break;
       default:
         actionHandler = options.onRetry;
@@ -267,6 +385,9 @@ export const useErrorHandler = (options: UseErrorHandlerOptions = {}) => {
     handleInsufficientFunds,
     handleNetworkError,
     handleTransactionError,
+    handleNetworkSwitchError,
+    handleConnectionTimeout,
+    handleInsufficientStakedAmount,
     parseError,
     createErrorMessage,
   };

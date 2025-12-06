@@ -3,7 +3,14 @@ import { useWriteContract, useAccount, useWaitForTransactionReceipt, useReadCont
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { Tooltip, HelpIcon, InfoCard, ErrorMessage } from './ui';
+import { 
+  Tooltip, 
+  HelpIcon, 
+  InfoCard, 
+  ErrorMessage,
+  InsufficientFundsMessage,
+  TransactionFailedMessage
+} from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function WithdrawForm() {
@@ -11,10 +18,15 @@ export function WithdrawForm() {
   const [amount, setAmount] = useState('');
   const [showInsufficientStakedError, setShowInsufficientStakedError] = useState(false);
   const [showTransactionError, setShowTransactionError] = useState(false);
+  const [showNetworkError, setShowNetworkError] = useState(false);
   const { showSuccess } = useNotification();
-  const { handleTransactionError } = useErrorHandler({
+  const { 
+    handleTransactionError,
+    handleInsufficientStakedAmount
+  } = useErrorHandler({
     onRetry: () => {
       setShowTransactionError(false);
+      setShowNetworkError(false);
       handleWithdraw();
     },
     onContactSupport: () => {
@@ -46,13 +58,17 @@ export function WithdrawForm() {
     // Reset error states
     setShowInsufficientStakedError(false);
     setShowTransactionError(false);
+    setShowNetworkError(false);
 
     // Check if user has sufficient staked amount
     const withdrawAmount = ethers.parseEther(amount);
     const stakedAmount = userInfo ? userInfo[0] : BigInt(0);
 
     if (withdrawAmount > stakedAmount) {
+      const availableAmount = parseFloat(ethers.formatEther(stakedAmount)).toFixed(2);
+      const requiredAmount = parseFloat(amount).toFixed(2);
       setShowInsufficientStakedError(true);
+      handleInsufficientStakedAmount(`${availableAmount} HAPG`, `${requiredAmount} HAPG`);
       return;
     }
 
@@ -68,11 +84,23 @@ export function WithdrawForm() {
       showSuccess('Withdrawal Successful!', `Successfully withdrew ${amount} HAPG tokens!`);
     } catch (error: unknown) {
       console.error('Withdraw failed:', error);
-      setShowTransactionError(true);
-      handleTransactionError(error, () => {
-        setShowTransactionError(false);
-        handleWithdraw();
-      });
+      
+      // Enhanced error handling with specific error types
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
+      
+      if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+        setShowNetworkError(true);
+        handleTransactionError(error, () => {
+          setShowNetworkError(false);
+          handleWithdraw();
+        });
+      } else {
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleWithdraw();
+        });
+      }
     }
   };
 
@@ -157,8 +185,10 @@ export function WithdrawForm() {
           onChange={(e) => {
             setAmount(e.target.value);
             // Clear error messages when user starts typing
-            if (showInsufficientStakedError) {
+            if (showInsufficientStakedError || showTransactionError || showNetworkError) {
               setShowInsufficientStakedError(false);
+              setShowTransactionError(false);
+              setShowNetworkError(false);
             }
           }}
           placeholder="0.00"

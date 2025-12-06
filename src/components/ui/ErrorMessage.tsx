@@ -234,3 +234,81 @@ export const MinimumAmountMessage: React.FC<{
     variant="warning"
   />
 );
+
+export const NetworkSwitchMessage: React.FC<{ 
+  currentNetwork: string; 
+  requiredNetwork: string;
+  onSwitch?: () => void;
+}> = ({ currentNetwork, requiredNetwork, onSwitch }) => (
+  <ErrorMessage
+    title="Wrong Network"
+    message={`You're currently connected to ${currentNetwork}, but this application requires ${requiredNetwork}. Please switch networks to continue.`}
+    action={onSwitch ? {
+      label: "Switch Network",
+      onClick: onSwitch,
+    } : undefined}
+    variant="warning"
+  />
+);
+
+export const NetworkSwitchFailedMessage: React.FC<{ 
+  onRetry?: () => void;
+  onSwitchManually?: () => void;
+}> = ({ onRetry, onSwitchManually }) => (
+  <ErrorMessage
+    title="Network Switch Failed"
+    message="We couldn't automatically switch your network. Please try again or switch manually in your wallet settings."
+    action={onRetry ? {
+      label: "Try Again",
+      onClick: onRetry,
+    } : onSwitchManually ? {
+      label: "Switch Manually",
+      onClick: onSwitchManually,
+    } : undefined}
+    variant="error"
+  />
+);
+
+export const WalletConnectionTimeoutMessage: React.FC<{ 
+  onRetry?: () => void;
+}> = ({ onRetry }) => (
+  <ErrorMessage
+    title="Connection Timeout"
+    message="The connection to your wallet is taking longer than expected. This might be due to network issues or wallet extension problems."
+    action={onRetry ? {
+      label: "Try Again",
+      onClick: onRetry,
+    } : undefined}
+    variant="warning"
+  />
+);
+
+export const GasEstimateMessage: React.FC<{ 
+  estimated: string;
+  onContinue?: () => void;
+}> = ({ estimated, onContinue }) => (
+  <ErrorMessage
+    title="High Gas Fee Detected"
+    message={`The estimated gas fee for this transaction is ${estimated}. This is higher than usual. You can proceed if you accept the cost, or cancel to try later.`}
+    action={onContinue ? {
+      label: "Continue Anyway",
+      onClick: onContinue,
+    } : undefined}
+    variant="warning"
+  />
+);
+
+export const UnsupportedWalletMessage: React.FC<{ 
+  supportedWallets: string[];
+  onGetSupportedWallets?: () => void;
+}> = ({ supportedWallets, onGetSupportedWallets }) => (
+  <ErrorMessage
+    title="Unsupported Wallet"
+    message={`This wallet isn't fully supported. Please use one of these wallets: ${supportedWallets.join(', ')} for the best experience.`}
+    action={onGetSupportedWallets ? {
+      label: "View Supported Wallets",
+      onClick: onGetSupportedWallets,
+    } : undefined}
+    variant="warning"
+  />
+);
