@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAppKit, useAppKitState } from '@reown/appkit/react';
 import { useAccount } from 'wagmi';
-import { HelpIcon, WalletNotConnectedMessage } from './ui';
+import { HelpIcon, WalletNotConnectedMessage, WalletConnectionTimeoutMessage, UnsupportedWalletMessage } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function ConnectWallet() {
@@ -9,18 +9,59 @@ export function ConnectWallet() {
   const { address, isConnected, isConnecting } = useAccount();
   const { selectedNetworkId } = useAppKitState();
   const [showConnectionError, setShowConnectionError] = useState(false);
-  const { handleWalletError } = useErrorHandler({
+  const [showTimeoutError, setShowTimeoutError] = useState(false);
+  const [showUnsupportedWalletError, setShowUnsupportedWalletError] = useState(false);
+  const { 
+    handleWalletError,
+    handleConnectionTimeout
+  } = useErrorHandler({
     onConnectWallet: () => open({ view: 'Connect' }),
+    onRetry: () => {
+      setShowTimeoutError(false);
+      setShowConnectionError(false);
+      setShowUnsupportedWalletError(false);
+      open({ view: 'Connect' });
+    },
+    onContactSupport: () => {
+      // This would open support contact modal
+      console.log('Open support contact modal');
+    },
   });
 
   const handleConnectClick = () => {
     setShowConnectionError(false);
+    setShowTimeoutError(false);
+    setShowUnsupportedWalletError(false);
     open({ view: 'Connect' });
+    
+    // Set a timeout to detect connection issues
+    setTimeout(() => {
+      if (!isConnected && !isConnecting) {
+        setShowTimeoutError(true);
+        handleConnectionTimeout(() => {
+          setShowTimeoutError(false);
+          handleConnectClick();
+        });
+      }
+    }, 10000); // 10 second timeout
   };
 
-  const handleConnectError = () => {
-    setShowConnectionError(true);
-    handleWalletError();
+  const handleConnectError = (errorType?: 'timeout' | 'unsupported' | 'general') => {
+    switch (errorType) {
+      case 'timeout':
+        setShowTimeoutError(true);
+        handleConnectionTimeout(() => {
+          setShowTimeoutError(false);
+          handleConnectClick();
+        });
+        break;
+      case 'unsupported':
+        setShowUnsupportedWalletError(true);
+        break;
+      default:
+        setShowConnectionError(true);
+        handleWalletError();
+    }
   };
 
   if (isConnected && address) {
@@ -86,10 +127,28 @@ export function ConnectWallet() {
         </HelpIcon>
       </div>
       
-      {/* Show connection error message */}
+      {/* Show error messages */}
       {showConnectionError && (
         <div className="flex justify-end">
-          <WalletNotConnectedMessage onConnect={handleConnectError} />
+          <WalletNotConnectedMessage onConnect={() => handleConnectError('general')} />
+        </div>
+      )}
+      
+      {showTimeoutError && (
+        <div className="flex justify-end">
+          <WalletConnectionTimeoutMessage onRetry={() => handleConnectError('timeout')} />
+        </div>
+      )}
+      
+      {showUnsupportedWalletError && (
+        <div className="flex justify-end">
+          <UnsupportedWalletMessage 
+            supportedWallets={['MetaMask', 'WalletConnect', 'Coinbase Wallet']}
+            onGetSupportedWallets={() => {
+              // This would open a modal with supported wallets
+              console.log('Open supported wallets modal');
+            }}
+          />
         </div>
       )}
     </div>
