@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,600;1,700;1,800;1,900&family=Inter:wght@300;400;500;600;700;800;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
 :root {
   /* Enhanced Color System for Crystal Stakes */
@@ -81,9 +82,45 @@
   --crystal-transition-normal: 0.25s ease-out;
   --crystal-transition-slow: 0.4s ease-out;
 
+  /* Crystal Typography System */
+  /* Font Family Definitions */
+  --crystal-font-serif: 'Playfair Display', 'Crimson Text', Georgia, serif;
+  --crystal-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --crystal-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  /* Typography Scale */
+  --crystal-text-xs: 0.75rem;
+  --crystal-text-sm: 0.875rem;
+  --crystal-text-base: 1rem;
+  --crystal-text-lg: 1.125rem;
+  --crystal-text-xl: 1.25rem;
+  --crystal-text-2xl: 1.5rem;
+  --crystal-text-3xl: 1.875rem;
+  --crystal-text-4xl: 2.25rem;
+  --crystal-text-5xl: 3rem;
+  --crystal-text-6xl: 3.75rem;
+  --crystal-text-7xl: 4.5rem;
+  --crystal-text-8xl: 6rem;
+  --crystal-text-9xl: 8rem;
+  
+  /* Line Heights */
+  --crystal-leading-tight: 1.25;
+  --crystal-leading-snug: 1.375;
+  --crystal-leading-normal: 1.5;
+  --crystal-leading-relaxed: 1.625;
+  --crystal-leading-loose: 2;
+  
+  /* Letter Spacing */
+  --crystal-tracking-tighter: -0.05em;
+  --crystal-tracking-tight: -0.025em;
+  --crystal-tracking-normal: 0em;
+  --crystal-tracking-wide: 0.025em;
+  --crystal-tracking-wider: 0.05em;
+  --crystal-tracking-widest: 0.1em;
+
   /* Base Design System */
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: var(--crystal-font-sans);
+  line-height: var(--crystal-leading-normal);
   font-weight: 400;
 
   color-scheme: light dark;
@@ -298,20 +335,267 @@ body {
   background-attachment: fixed;
 }
 
-/* Enhanced Typography */
+/* Crystal Typography System */
+.font-serif { font-family: var(--crystal-font-serif); }
+.font-sans { font-family: var(--crystal-font-sans); }
+.font-mono { font-family: var(--crystal-font-mono); }
+
+/* Heading Hierarchy - Elegant Serif Typography */
 h1, h2, h3, h4, h5, h6 {
   color: var(--crystal-text-primary);
-  font-weight: 600;
-  line-height: 1.2;
+  font-family: var(--crystal-font-serif);
+  line-height: var(--crystal-leading-tight);
+  letter-spacing: var(--crystal-tracking-tight);
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: var(--crystal-text-5xl);
+  font-weight: 700;
+  line-height: var(--crystal-leading-tight);
+  letter-spacing: var(--crystal-tracking-tighter);
   background: var(--crystal-gradient-primary);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: var(--crystal-text-4xl);
+  font-weight: 600;
+  line-height: var(--crystal-leading-snug);
+  letter-spacing: var(--crystal-tracking-tight);
+  color: var(--crystal-text-primary);
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: var(--crystal-text-3xl);
+  font-weight: 600;
+  line-height: var(--crystal-leading-snug);
+  color: var(--crystal-text-primary);
+  margin-bottom: 1rem;
+}
+
+h4 {
+  font-size: var(--crystal-text-2xl);
+  font-weight: 500;
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+h5 {
+  font-size: var(--crystal-text-xl);
+  font-weight: 500;
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+h6 {
+  font-size: var(--crystal-text-lg);
+  font-weight: 500;
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* Body Text Styles */
+.text-display {
+  font-size: var(--crystal-text-4xl);
+  font-weight: 300;
+  line-height: var(--crystal-leading-tight);
+  letter-spacing: var(--crystal-tracking-wide);
+  font-family: var(--crystal-font-serif);
+}
+
+.text-large {
+  font-size: var(--crystal-text-lg);
+  font-weight: 400;
+  line-height: var(--crystal-leading-relaxed);
+  color: var(--crystal-text-primary);
+}
+
+.text-body {
+  font-size: var(--crystal-text-base);
+  font-weight: 400;
+  line-height: var(--crystal-leading-relaxed);
+  color: var(--crystal-text-primary);
+}
+
+.text-small {
+  font-size: var(--crystal-text-sm);
+  font-weight: 400;
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-secondary);
+}
+
+.text-caption {
+  font-size: var(--crystal-text-xs);
+  font-weight: 500;
+  line-height: var(--crystal-leading-normal);
+  letter-spacing: var(--crystal-tracking-wide);
+  text-transform: uppercase;
+  color: var(--crystal-text-muted);
+}
+
+/* Crystal Number Display System */
+.crystal-number-display {
+  font-family: var(--crystal-font-mono);
+  font-weight: 700;
+  font-size: var(--crystal-text-3xl);
+  line-height: var(--crystal-leading-tight);
+  letter-spacing: var(--crystal-tracking-tight);
+  background: var(--crystal-gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.crystal-number-large {
+  font-family: var(--crystal-font-mono);
+  font-weight: 600;
+  font-size: var(--crystal-text-4xl);
+  line-height: var(--crystal-leading-tight);
+  color: var(--crystal-text-primary);
+}
+
+.crystal-number-medium {
+  font-family: var(--crystal-font-mono);
+  font-weight: 500;
+  font-size: var(--crystal-text-2xl);
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-primary);
+}
+
+.crystal-number-small {
+  font-family: var(--crystal-font-mono);
+  font-weight: 500;
+  font-size: var(--crystal-text-lg);
+  line-height: var(--crystal-leading-normal);
+  color: var(--crystal-text-secondary);
+}
+
+/* Crystal Currency and Percentage Styles */
+.crystal-currency {
+  font-family: var(--crystal-font-mono);
+  font-weight: 600;
+  color: var(--crystal-accent-emerald);
+}
+
+.crystal-percentage {
+  font-family: var(--crystal-font-mono);
+  font-weight: 700;
+  color: var(--crystal-accent-amber);
+}
+
+.crystal-token-amount {
+  font-family: var(--crystal-font-mono);
+  font-weight: 600;
+  color: var(--crystal-primary-600);
+}
+
+/* Crystal Text Animations */
+@keyframes crystal-text-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes crystal-text-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes crystal-number-change {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes crystal-pulse-text {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.crystal-text-fade-in {
+  animation: crystal-text-fade-in 0.6s ease-out forwards;
+}
+
+.crystal-text-slide-up {
+  animation: crystal-text-slide-up 0.8s ease-out forwards;
+}
+
+.crystal-number-animate {
+  animation: crystal-number-change 0.4s ease-out;
+}
+
+.crystal-text-pulse {
+  animation: crystal-pulse-text 2s ease-in-out infinite;
+}
+
+/* Crystal Text Effects */
+.crystal-text-glow {
+  text-shadow: 0 0 10px rgba(244, 114, 182, 0.3);
+}
+
+.crystal-text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.crystal-text-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--crystal-primary-400);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  h1 { font-size: var(--crystal-text-4xl); }
+  h2 { font-size: var(--crystal-text-3xl); }
+  h3 { font-size: var(--crystal-text-2xl); }
+  h4 { font-size: var(--crystal-text-xl); }
+  h5 { font-size: var(--crystal-text-lg); }
+  
+  .text-display { font-size: var(--crystal-text-3xl); }
+  .crystal-number-display { font-size: var(--crystal-text-2xl); }
+  .crystal-number-large { font-size: var(--crystal-text-3xl); }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: var(--crystal-text-3xl); }
+  h2 { font-size: var(--crystal-text-2xl); }
+  h3 { font-size: var(--crystal-text-xl); }
+  
+  .text-display { font-size: var(--crystal-text-2xl); }
+  .crystal-number-display { font-size: var(--crystal-text-xl); }
+  .crystal-number-large { font-size: var(--crystal-text-2xl); }
 }
 
 /* Crystal Button System */
