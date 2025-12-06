@@ -3,12 +3,25 @@ import { useWriteContract, useAccount, useWaitForTransactionReceipt, useReadCont
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { Tooltip, HelpIcon, InfoCard } from './ui';
+import { Tooltip, HelpIcon, InfoCard, ErrorMessage } from './ui';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function WithdrawForm() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('');
-  const { showSuccess, showError } = useNotification();
+  const [showInsufficientStakedError, setShowInsufficientStakedError] = useState(false);
+  const [showTransactionError, setShowTransactionError] = useState(false);
+  const { showSuccess } = useNotification();
+  const { handleTransactionError } = useErrorHandler({
+    onRetry: () => {
+      setShowTransactionError(false);
+      handleWithdraw();
+    },
+    onContactSupport: () => {
+      // This would open support contact modal
+      console.log('Open support contact modal');
+    },
+  });
 
   // Check user's staked amount
   const { data: userInfo } = useReadContract({
@@ -30,12 +43,16 @@ export function WithdrawForm() {
   const handleWithdraw = async () => {
     if (!amount || !address) return;
 
+    // Reset error states
+    setShowInsufficientStakedError(false);
+    setShowTransactionError(false);
+
     // Check if user has sufficient staked amount
     const withdrawAmount = ethers.parseEther(amount);
     const stakedAmount = userInfo ? userInfo[0] : BigInt(0);
 
     if (withdrawAmount > stakedAmount) {
-      showError('Insufficient Staked Amount', `You have ${ethers.formatEther(stakedAmount)} tokens staked.`);
+      setShowInsufficientStakedError(true);
       return;
     }
 
@@ -51,7 +68,11 @@ export function WithdrawForm() {
       showSuccess('Withdrawal Successful!', `Successfully withdrew ${amount} HAPG tokens!`);
     } catch (error: unknown) {
       console.error('Withdraw failed:', error);
-      showError('Withdrawal Failed', error instanceof Error ? error.message : 'Withdrawal failed. Please try again.');
+      setShowTransactionError(true);
+      handleTransactionError(error, () => {
+        setShowTransactionError(false);
+        handleWithdraw();
+      });
     }
   };
 
@@ -89,6 +110,37 @@ export function WithdrawForm() {
         </p>
       </div>
 
+      {/* Error Messages */}
+      {showInsufficientStakedError && (
+        <ErrorMessage
+          title="Insufficient Staked Amount"
+          message={`You have ${parseFloat(ethers.formatEther(stakedAmount)).toFixed(2)} HAPG tokens staked, but you're trying to withdraw ${parseFloat(amount).toFixed(2)} HAPG tokens.`}
+          action={{
+            label: "Set Maximum Amount",
+            onClick: () => {
+              setAmount(ethers.formatEther(stakedAmount));
+              setShowInsufficientStakedError(false);
+            },
+          }}
+          variant="error"
+        />
+      )}
+
+      {showTransactionError && (
+        <ErrorMessage
+          title="Withdrawal failed, please try again"
+          message="The blockchain transaction couldn't be completed. This might be due to network congestion or insufficient gas fees."
+          action={{
+            label: "Try Again",
+            onClick: () => {
+              setShowTransactionError(false);
+              handleWithdraw();
+            },
+          }}
+          variant="error"
+        />
+      )}
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
           <span>Amount to Withdraw</span>
@@ -102,8 +154,16 @@ export function WithdrawForm() {
         <input
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            // Clear error messages when user starts typing
+            if (showInsufficientStakedError) {
+              setShowInsufficientStakedError(false);
+            }
+          }}
           placeholder="0.00"
+          max={ethers.formatEther(stakedAmount)}
+          disabled={isWithdrawLoading}
           className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium"
         />
       </div>

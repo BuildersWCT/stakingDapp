@@ -3,15 +3,29 @@ import { useWriteContract, useAccount, useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI, testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { Tooltip, HelpIcon, InfoCard } from './ui';
+import { Tooltip, HelpIcon, InfoCard, MinimumAmountMessage, InsufficientFundsMessage, TransactionFailedMessage } from './ui';
 import { StepIndicator, stakingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader } from './ui';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function StakeForm() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('');
   const [step, setStep] = useState<'idle' | 'approving' | 'staking'>('idle');
   const [isLoading, setIsLoading] = useState(false);
-  const { showSuccess, showError } = useNotification();
+  const [showMinimumAmountError, setShowMinimumAmountError] = useState(false);
+  const [showInsufficientFundsError, setShowInsufficientFundsError] = useState(false);
+  const [showTransactionError, setShowTransactionError] = useState(false);
+  const { showSuccess } = useNotification();
+  const { handleInsufficientFunds, handleTransactionError } = useErrorHandler({
+    onRetry: () => {
+      setShowTransactionError(false);
+      handleStake();
+    },
+    onGetTokens: () => {
+      // This would open a modal or redirect to get tokens
+      console.log('Open get tokens modal');
+    },
+  });
 
   // Use the test token address directly
   const stakingToken = testTokenAddress;
@@ -33,17 +47,25 @@ export function StakeForm() {
   const handleStake = async () => {
     if (!amount || !stakingToken || !address) return;
 
+    // Reset error states
+    setShowMinimumAmountError(false);
+    setShowInsufficientFundsError(false);
+    setShowTransactionError(false);
+
     // Check minimum stake amount
     const stakeAmountNum = parseFloat(amount);
     if (stakeAmountNum < 50) {
-      showError('Minimum Stake Amount', 'Minimum stake amount is 50 HAPG tokens.');
+      setShowMinimumAmountError(true);
       return;
     }
 
     // Check if user has sufficient balance
     const stakeAmount = ethers.parseEther(amount);
     if (!userBalance || userBalance < stakeAmount) {
-      showError('Insufficient Balance', `You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens available.`);
+      const availableAmount = userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00';
+      const requiredAmount = parseFloat(amount).toFixed(2);
+      setShowInsufficientFundsError(true);
+      handleInsufficientFunds(`${availableAmount} HAPG`, `${requiredAmount} HAPG`);
       return;
     }
 
@@ -78,7 +100,11 @@ export function StakeForm() {
       console.error('Transaction failed:', error);
       setStep('idle');
       setIsLoading(false);
-      showError('Transaction Failed', error instanceof Error ? error.message : 'Transaction failed. Please try again.');
+      setShowTransactionError(true);
+      handleTransactionError(error, () => {
+        setShowTransactionError(false);
+        handleStake();
+      });
     }
   };
 
@@ -143,6 +169,41 @@ export function StakeForm() {
         </div>
       ) : null}
 
+      {/* Error Messages */}
+      {showMinimumAmountError && (
+        <MinimumAmountMessage
+          minimum="50 HAPG"
+          onAdjust={() => {
+            setAmount('50');
+            setShowMinimumAmountError(false);
+          }}
+        />
+      )}
+
+      {showInsufficientFundsError && userBalance && (
+        <InsufficientFundsMessage
+          available={`${parseFloat(ethers.formatEther(userBalance)).toFixed(2)} HAPG`}
+          required={`${parseFloat(amount).toFixed(2)} HAPG`}
+          onGetTokens={() => {
+            // This would open a modal or redirect to get tokens
+            console.log('Open get tokens modal');
+          }}
+        />
+      )}
+
+      {showTransactionError && (
+        <TransactionFailedMessage
+          onRetry={() => {
+            setShowTransactionError(false);
+            handleStake();
+          }}
+          onContactSupport={() => {
+            // This would open support contact modal
+            console.log('Open support contact modal');
+          }}
+        />
+      )}
+
       <div>
         <label className="block text-sm font-medium mb-2 flex items-center space-x-2" style={{ color: 'var(--crystal-text-primary)' }}>
           <span>Amount to Stake (Minimum: 50 HAPG)</span>
@@ -156,7 +217,14 @@ export function StakeForm() {
         <input
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            // Clear error messages when user starts typing
+            if (showMinimumAmountError || showInsufficientFundsError) {
+              setShowMinimumAmountError(false);
+              setShowInsufficientFundsError(false);
+            }
+          }}
           placeholder="50.00"
           min="50"
           disabled={isLoading}
