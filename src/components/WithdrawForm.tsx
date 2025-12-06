@@ -2,11 +2,38 @@ import { useState } from 'react';
 import { useWriteContract, useAccount, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
+import { useNotification } from './NotificationProvider';
+import { 
+  Tooltip, 
+  HelpIcon, 
+  InfoCard, 
+  ErrorMessage,
+  InsufficientFundsMessage,
+  TransactionFailedMessage
+} from './ui';
+import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function WithdrawForm() {
   const { address } = useAccount();
   const [amount, setAmount] = useState('');
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [showInsufficientStakedError, setShowInsufficientStakedError] = useState(false);
+  const [showTransactionError, setShowTransactionError] = useState(false);
+  const [showNetworkError, setShowNetworkError] = useState(false);
+  const { showSuccess } = useNotification();
+  const { 
+    handleTransactionError,
+    handleInsufficientStakedAmount
+  } = useErrorHandler({
+    onRetry: () => {
+      setShowTransactionError(false);
+      setShowNetworkError(false);
+      handleWithdraw();
+    },
+    onContactSupport: () => {
+      // This would open support contact modal
+      console.log('Open support contact modal');
+    },
+  });
 
   // Check user's staked amount
   const { data: userInfo } = useReadContract({
@@ -28,22 +55,24 @@ export function WithdrawForm() {
   const handleWithdraw = async () => {
     if (!amount || !address) return;
 
+    // Reset error states
+    setShowInsufficientStakedError(false);
+    setShowTransactionError(false);
+    setShowNetworkError(false);
+
     // Check if user has sufficient staked amount
     const withdrawAmount = ethers.parseEther(amount);
     const stakedAmount = userInfo ? userInfo[0] : BigInt(0);
 
     if (withdrawAmount > stakedAmount) {
-      setNotification({
-        type: 'error',
-        message: `Insufficient staked amount. You have ${ethers.formatEther(stakedAmount)} tokens staked.`
-      });
-      setTimeout(() => setNotification(null), 5000);
+      const availableAmount = parseFloat(ethers.formatEther(stakedAmount)).toFixed(2);
+      const requiredAmount = parseFloat(amount).toFixed(2);
+      setShowInsufficientStakedError(true);
+      handleInsufficientStakedAmount(`${availableAmount} HAPG`, `${requiredAmount} HAPG`);
       return;
     }
 
     try {
-      setNotification(null);
-
       await withdraw({
         address: stakingContractAddress,
         abi: stakingContractABI,
@@ -52,18 +81,26 @@ export function WithdrawForm() {
       });
 
       setAmount('');
-      setNotification({
-        type: 'success',
-        message: `Successfully withdrew ${amount} tokens!`
-      });
-      setTimeout(() => setNotification(null), 5000);
+      showSuccess('Withdrawal Successful!', `Successfully withdrew ${amount} HAPG tokens!`);
     } catch (error: unknown) {
       console.error('Withdraw failed:', error);
-      setNotification({
-        type: 'error',
-        message: error instanceof Error ? error.message : 'Withdrawal failed. Please try again.'
-      });
-      setTimeout(() => setNotification(null), 5000);
+      
+      // Enhanced error handling with specific error types
+      const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
+      
+      if (errorMessage.includes('network') || errorMessage.includes('connection')) {
+        setShowNetworkError(true);
+        handleTransactionError(error, () => {
+          setShowNetworkError(false);
+          handleWithdraw();
+        });
+      } else {
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleWithdraw();
+        });
+      }
     }
   };
 
@@ -71,27 +108,28 @@ export function WithdrawForm() {
 
   return (
     <div className="space-y-4">
-      {/* Notification */}
-      {notification && (
-        <div className={`p-4 rounded-2xl border-2 ${
-          notification.type === 'success'
-            ? 'bg-green-50 border-green-200 text-green-800'
-            : 'bg-red-50 border-red-200 text-red-800'
-        }`}>
-          <div className="flex items-center">
-            <svg className={`w-5 h-5 mr-2 ${
-              notification.type === 'success' ? 'text-green-600' : 'text-red-600'
-            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {notification.type === 'success' ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              )}
-            </svg>
-            <p className="font-medium">{notification.message}</p>
+      {/* Withdrawal Information */}
+      <InfoCard
+        title="Understanding Withdrawals"
+        description={
+          <div className="space-y-2">
+            <p>Withdraw allows you to retrieve your staked HAPG tokens from the protocol.</p>
+            <div className="text-xs space-y-1">
+              <p>• <strong>Process:</strong> Get your staked tokens back to your wallet</p>
+              <p>• <strong>Timing:</strong> Withdrawals are processed immediately</p>
+              <p>• <strong>Gas Fees:</strong> Estimated 0.001-0.003 ETH for transaction</p>
+              <p>• <strong>Rewards:</strong> Any unclaimed rewards will remain in the protocol</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
+              <p className="text-xs text-blue-700 font-medium">💡 Tip: Consider claiming rewards before withdrawing to maximize your earnings.</p>
+            </div>
           </div>
-        </div>
-      )}
+        }
+        variant="info"
+        helpContent="You can withdraw any amount up to your total staked tokens. Remember to claim any earned rewards first."
+        collapsible={true}
+        defaultExpanded={false}
+      />
 
       {/* Staked Amount Display */}
       <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
@@ -100,35 +138,84 @@ export function WithdrawForm() {
         </p>
       </div>
 
+      {/* Error Messages */}
+      {showInsufficientStakedError && (
+        <ErrorMessage
+          title="Insufficient Staked Amount"
+          message={`You have ${parseFloat(ethers.formatEther(stakedAmount)).toFixed(2)} HAPG tokens staked, but you're trying to withdraw ${parseFloat(amount).toFixed(2)} HAPG tokens.`}
+          action={{
+            label: "Set Maximum Amount",
+            onClick: () => {
+              setAmount(ethers.formatEther(stakedAmount));
+              setShowInsufficientStakedError(false);
+            },
+          }}
+          variant="error"
+        />
+      )}
+
+      {showTransactionError && (
+        <ErrorMessage
+          title="Withdrawal failed, please try again"
+          message="The blockchain transaction couldn't be completed. This might be due to network congestion or insufficient gas fees."
+          action={{
+            label: "Try Again",
+            onClick: () => {
+              setShowTransactionError(false);
+              handleWithdraw();
+            },
+          }}
+          variant="error"
+        />
+      )}
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Amount to Withdraw
+        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
+          <span>Amount to Withdraw</span>
+          <HelpIcon
+            content="Enter the amount of HAPG tokens you want to withdraw from staking. You can withdraw up to your total staked amount."
+            position="right"
+            variant="subtle"
+            size="sm"
+          />
         </label>
         <input
           type="number"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value);
+            // Clear error messages when user starts typing
+            if (showInsufficientStakedError || showTransactionError || showNetworkError) {
+              setShowInsufficientStakedError(false);
+              setShowTransactionError(false);
+              setShowNetworkError(false);
+            }
+          }}
           placeholder="0.00"
+          max={ethers.formatEther(stakedAmount)}
+          disabled={isWithdrawLoading}
           className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium"
         />
       </div>
-      <button
-        onClick={handleWithdraw}
-        disabled={!address || !amount || isWithdrawLoading || ethers.parseEther(amount || '0') > stakedAmount}
-        className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 disabled:transform-none border-2 border-blue-500/30"
-      >
-        {isWithdrawLoading ? (
-          <div className="flex items-center justify-center">
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Withdrawing...
-          </div>
-        ) : (
-          'Withdraw Tokens'
-        )}
-      </button>
+      <Tooltip content="Get your staked tokens back">
+        <button
+          onClick={handleWithdraw}
+          disabled={!address || !amount || isWithdrawLoading || ethers.parseEther(amount || '0') > stakedAmount}
+          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-blue-500/30 btn-crystal-primary btn-glow-blue btn-ripple shadow-crystal"
+        >
+          {isWithdrawLoading ? (
+            <div className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Withdrawing...
+            </div>
+          ) : (
+            'Withdraw Tokens'
+          )}
+        </button>
+      </Tooltip>
     </div>
   );
 }
