@@ -1,0 +1,124 @@
+/* Core theme variables for Crystal Stakes - light & dark with smooth transition helper */
+
+/* Transition helper */
+.theme-transition,
+.theme-transition * {
+  transition: background-color 260ms ease, color 260ms ease, border-color 260ms ease, box-shadow 260ms ease, fill 260ms ease;
+}
+
+/* Light theme (default) */
+:root {
+  --crystal-bg: #f8fafc;
+  --crystal-surface: #ffffff;
+  --crystal-border: rgba(15, 23, 42, 0.06);
+  --crystal-text-primary: #0f172a;
+  --crystal-text-secondary: #334155;
+  --crystal-text-muted: #6b7280;
+  --crystal-primary-200: rgba(99,102,241,0.18);
+  --crystal-primary-300: rgba(99,102,241,0.12);
+  --crystal-primary-400: rgba(99,102,241,0.08);
+  --crystal-primary-600: #4338ca;
+  --crystal-gradient-primary: linear-gradient(135deg, #7c3aed, #06b6d4);
+  --crystal-gradient-secondary: linear-gradient(135deg,#06b6d4,#7c3aed);
+  --crystal-accent-emerald: #10b981;
+  --crystal-accent-blue: #3b82f6;
+  --crystal-accent-amber: #f59e0b;
+  --crystal-accent-red: #ef4444;
+  --shadow-crystal: 0 6px 18px rgba(16,24,40,0.06);
+  --glass-bg: rgba(255,255,255,0.7);
+  --glass-border: rgba(255,255,255,0.4);
+  --focus-ring: rgba(99,102,241,0.24);
+  --crystal-noise: rgba(255,255,255,0.03);
+}
+
+/* Dark theme overrides */
+:root[data-theme="dark"],
+[data-theme="dark"] {
+  --crystal-bg: #071026;
+  --crystal-surface: rgba(8,15,28,0.6);
+  --crystal-border: rgba(255,255,255,0.04);
+  --crystal-text-primary: #e6eef8;
+  --crystal-text-secondary: #c7d7ea;
+  --crystal-text-muted: #9fb2cc;
+  --crystal-primary-200: rgba(124,58,237,0.14);
+  --crystal-primary-300: rgba(6,182,212,0.08);
+  --crystal-primary-400: rgba(99,102,241,0.06);
+  --crystal-primary-600: #8b5cf6;
+  --crystal-gradient-primary: linear-gradient(135deg, #06b6d4, #7c3aed 75%);
+  --crystal-gradient-secondary: linear-gradient(135deg,#7c3aed,#06b6d4);
+  --crystal-accent-emerald: #34d399;
+  --crystal-accent-blue: #60a5fa;
+  --crystal-accent-amber: #fbbf24;
+  --crystal-accent-red: #f87171;
+  --shadow-crystal: 0 10px 30px rgba(2,6,23,0.6);
+  --glass-bg: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.04);
+  --focus-ring: rgba(139,92,246,0.18);
+  --crystal-noise: rgba(255,255,255,0.02);
+}
+
+/* Global application of variables */
+html, body, #root {
+  height: 100%;
+  background: var(--crystal-bg);
+  color: var(--crystal-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.crystal-glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
+  border: 1px solid var(--crystal-border);
+  backdrop-filter: blur(6px);
+}
+[data-theme="dark"] .crystal-glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid var(--crystal-border);
+}
+
+.crystal-gradient-text {
+  background: var(--crystal-gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.crystal-gradient-primary {
+  background: var(--crystal-gradient-primary);
+}
+
+.shadow-crystal {
+  box-shadow: var(--shadow-crystal);
+}
+
+.crystal-pattern { background-image: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.02), transparent 20%); }
+
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--crystal-border);
+  color: var(--crystal-text-primary);
+  cursor: pointer;
+}
+.theme-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.theme-select {
+  background: transparent;
+  border: 1px solid var(--crystal-border);
+  color: var(--crystal-text-primary);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.theme-select:focus {
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  outline: none;
+}

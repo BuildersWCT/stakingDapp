@@ -11,9 +11,14 @@ import { NotificationProvider, useNotification } from './components/Notification
 import { NotificationContainer } from './components/ui/NotificationToast';
 import { NotificationTest } from './components/NotificationTest';
 
+// Theme provider & hook
+import ThemeProvider, { useTheme } from './theme/ThemeProvider';
+import './theme/theme.css';
+
 // Inner component that uses the notification hook
 const HomeContent = () => {
   const { notifications, dismissNotification } = useNotification();
+  const { theme, preference, setPreference, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen crystal-pattern crystal-particles relative overflow-hidden">
@@ -48,7 +53,41 @@ const HomeContent = () => {
                 <p className="text-sm font-medium" style={{ color: 'var(--crystal-primary-600)' }}>Elegant DeFi Experience</p>
               </div>
             </div>
-            <ConnectWallet />
+            <div className="flex items-center space-x-3">
+              <button
+                className="theme-toggle-btn"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              >
+                {theme === 'light' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M7.05 16.95l-1.414 1.414M18.364 18.364l-1.414-1.414M7.05 7.05L5.636 5.636" />
+                    <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} />
+                  </svg>
+                )}
+                <span className="text-sm font-medium" style={{ fontFamily: 'serif' }}>{theme === 'light' ? 'Dark' : 'Light'}</span>
+              </button>
+
+              <label htmlFor="theme-pref" className="sr-only">Theme preference</label>
+              <select
+                id="theme-pref"
+                className="theme-select"
+                value={preference}
+                onChange={(e) => setPreference(e.target.value as any)}
+                title="Choose theme preference: System, Light, or Dark"
+              >
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+
+              <ConnectWallet />
+            </div>
           </div>
         </div>
       </header>
@@ -57,7 +96,7 @@ const HomeContent = () => {
         {/* Hero Section */}
         <div className="text-center mb-20 relative">
           <div className="inline-block p-2 rounded-2xl mb-8 animate-fade-in crystal-gradient-primary">
-            <div className="bg-white rounded-xl px-8 py-3 shadow-crystal">
+            <div className="rounded-xl px-8 py-3 shadow-crystal" style={{ background: 'var(--crystal-surface)' }}>
               <span className="text-sm font-medium crystal-gradient-text" style={{ fontFamily: 'serif' }}>
                 ✨ Welcome to Crystal Stakes
               </span>
@@ -211,8 +250,10 @@ const HomeContent = () => {
 // Main export that wraps content with NotificationProvider
 export default function Home() {
   return (
-    <NotificationProvider>
-      <HomeContent />
-    </NotificationProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <HomeContent />
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }
