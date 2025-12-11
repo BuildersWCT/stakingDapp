@@ -1,9 +1,11 @@
 /* Core theme variables for Crystal Stakes - light & dark with smooth transition helper */
 
 /* Transition helper */
-.theme-transition,
-.theme-transition * {
-  transition: background-color 260ms ease, color 260ms ease, border-color 260ms ease, box-shadow 260ms ease, fill 260ms ease;
+@media (prefers-reduced-motion: no-preference) {
+  .theme-transition,
+  .theme-transition * {
+    transition: background-color 260ms ease, color 260ms ease, border-color 260ms ease, box-shadow 260ms ease, fill 260ms ease;
+  }
 }
 
 /* Light theme (default) */
