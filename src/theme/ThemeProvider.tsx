@@ -27,7 +27,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   // derived effective theme
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+    if (preference !== 'system') return preference;
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';
     return 'light';
   });
 
