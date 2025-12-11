@@ -73,8 +73,20 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    mq.addEventListener ? mq.addEventListener('change', handler) : mq.addListener(handler);
-    return () => mq && (mq.removeEventListener ? mq.removeEventListener('change', handler) : mq.removeListener(handler));
+    if (mq.addEventListener) {
+      mq.addEventListener('change', handler);
+    } else if (mq.addListener) {
+      mq.addListener(handler);
+    }
+    return () => {
+      if (mq) {
+        if (mq.removeEventListener) {
+          mq.removeEventListener('change', handler);
+        } else if (mq.removeListener) {
+          mq.removeListener(handler);
+        }
+      }
+    };
   }, [preference]);
 
   const setPreference = (p: Preference) => setPreferenceState(p);
