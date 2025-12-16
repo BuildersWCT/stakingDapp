@@ -3,7 +3,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { Tooltip, HelpIcon, InfoCard } from './ui';
+import { Tooltip, HelpIcon, InfoCard, EnhancedInput } from './ui';
 import { StepIndicator, mintingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader, CircularProgress } from './ui/index';
 
 export function MintTokens() {
@@ -195,16 +195,8 @@ export function MintTokens() {
 
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
-            <span>Amount to Mint (Max: 100 tokens)</span>
-            <HelpIcon
-              content="Enter the number of test tokens you want to mint. Minimum 1 token, maximum 100 tokens per 24-hour period."
-              position="right"
-              variant="subtle"
-              size="sm"
-            />
-          </label>
-          <input
+          <EnhancedInput
+            label="Amount to Mint (Max: 100 tokens)"
             type="number"
             value={amount}
             onChange={(e) => {
@@ -221,12 +213,28 @@ export function MintTokens() {
             min="1"
             max="100"
             disabled={isMinting}
-            className="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium disabled:opacity-50"
+            variant="crystal"
+            size="lg"
+            helpText="Enter the number of test tokens you want to mint. Minimum 1 token, maximum 100 tokens per 24-hour period."
+            error={
+              parseFloat(amount) > 100 
+                ? "Maximum 100 tokens allowed per mint"
+                : parseFloat(amount) < 1 && amount !== ""
+                ? "Minimum 1 token required"
+                : !canMint 
+                ? "Mint cooldown active"
+                : undefined
+            }
+            success={
+              amount && parseFloat(amount) >= 1 && parseFloat(amount) <= 100 && canMint
+                ? true
+                : undefined
+            }
           />
           
           {/* Progress bar for mint amount */}
           {amount && (
-            <div className="mt-2">
+            <div className="mt-3">
               <ProgressBar
                 value={Math.min((parseFloat(amount) / 100) * 100, 100)}
                 label={`${amount} tokens (${parseFloat(amount)}% of max)`}
@@ -237,8 +245,9 @@ export function MintTokens() {
             </div>
           )}
           
-          <p className="text-xs text-gray-500 mt-1">
-            💡 Rate limit: Once per 24 hours, maximum 100 tokens
+          <p className="text-xs text-white/70 mt-2 flex items-center space-x-1">
+            <span>💡</span>
+            <span>Rate limit: Once per 24 hours, maximum 100 tokens</span>
           </p>
         </div>
 
