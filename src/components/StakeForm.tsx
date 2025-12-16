@@ -12,7 +12,8 @@ import {
   TransactionFailedMessage,
   NetworkSwitchMessage,
   NetworkSwitchFailedMessage,
-  GasEstimateMessage
+  GasEstimateMessage,
+  EnhancedInput
 } from './ui';
 import { StepIndicator, stakingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
@@ -268,16 +269,8 @@ export function StakeForm() {
       )}
 
       <div>
-        <label className="block text-sm font-medium mb-2 flex items-center space-x-2" style={{ color: 'var(--crystal-text-primary)' }}>
-          <span>Amount to Stake (Minimum: 50 HAPG)</span>
-          <HelpIcon
-            content="Enter the amount of HAPG tokens you want to stake. The minimum amount is 50 tokens. Higher amounts may earn more rewards proportionally."
-            position="right"
-            variant="subtle"
-            size="sm"
-          />
-        </label>
-        <input
+        <EnhancedInput
+          label="Amount to Stake (Minimum: 50 HAPG)"
           type="number"
           value={amount}
           onChange={(e) => {
@@ -294,13 +287,26 @@ export function StakeForm() {
           placeholder="50.00"
           min="50"
           disabled={isLoading}
-          className="w-full px-4 py-3 crystal-input"
-          style={{ color: 'var(--crystal-text-primary)' }}
+          variant="crystal"
+          size="lg"
+          helpText="Enter the amount of HAPG tokens you want to stake. The minimum amount is 50 tokens. Higher amounts may earn more rewards proportionally."
+          error={
+            showMinimumAmountError 
+              ? "Minimum stake amount is 50 HAPG tokens" 
+              : showInsufficientFundsError 
+              ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
+              : undefined
+          }
+          success={
+            amount && parseFloat(amount) >= 50 && userBalance && ethers.parseEther(amount || '0') <= userBalance
+              ? true 
+              : undefined
+          }
         />
         
         {/* Progress bar for stake amount validation */}
         {amount && (
-          <div className="mt-2">
+          <div className="mt-3">
             <ProgressBar
               value={Math.min((parseFloat(amount) / 1000) * 100, 100)}
               label={`${parseFloat(amount || '0').toFixed(2)} HAPG tokens`}
