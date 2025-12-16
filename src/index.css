@@ -865,6 +865,57 @@ button:focus-visible {
   }
 }
 
+/* New Enhanced Animations */
+@keyframes crystal-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(244, 114, 182, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(244, 114, 182, 0.5), 0 0 40px rgba(244, 114, 182, 0.3);
+  }
+}
+
+@keyframes crystal-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-10px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0);
+  }
+  70% {
+    transform: scale(0.9) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes crystal-focus-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(244, 114, 182, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(244, 114, 182, 0);
+  }
+}
+
+@keyframes crystal-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .animate-shake {
   animation: crystal-shake 0.5s ease-in-out;
 }
@@ -875,6 +926,22 @@ button:focus-visible {
 
 .animate-input-glow {
   animation: crystal-input-glow 2s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: crystal-glow 2s ease-in-out infinite;
+}
+
+.animate-bounce-in {
+  animation: crystal-bounce-in 0.6s ease-out;
+}
+
+.animate-focus-ring {
+  animation: crystal-focus-ring 1s ease-out;
+}
+
+.animate-scale-in {
+  animation: crystal-scale-in 0.3s ease-out;
 }
 
 /* Enhanced Input Variants */
@@ -891,21 +958,44 @@ button:focus-visible {
   animation: crystal-shake 0.5s ease-in-out;
 }
 
-/* Mobile Touch Targets */
+/* Enhanced Mobile Touch Targets */
 .mobile-touch-target {
   min-height: 44px;
   min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: none) and (pointer: coarse) {
   .mobile-touch-target {
     min-height: 48px;
-    padding: 12px 16px;
+    padding: 14px 18px;
+    font-size: 16px; /* Prevents zoom on iOS */
   }
   
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     height: 48px;
+  }
+  
+  /* Enhanced mobile focus states */
+  .mobile-touch-target:focus {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.2);
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-touch-target {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-touch-target {
+    min-height: 52px;
+    padding: 14px 18px;
   }
 }
 
