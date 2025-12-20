@@ -14,6 +14,7 @@ import { NotificationTest } from './components/NotificationTest';
 // Theme provider & hook
 import ThemeProvider, { useTheme } from './theme/ThemeProvider';
 import './theme/theme.css';
+import './styles/mobile-enhancements.css';
 
 // Inner component that uses the notification hook
 const HomeContent = () => {

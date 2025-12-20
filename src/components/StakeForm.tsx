@@ -5,12 +5,10 @@ import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
 import { 
   Tooltip, 
-  HelpIcon, 
   InfoCard, 
   MinimumAmountMessage, 
   InsufficientFundsMessage, 
   TransactionFailedMessage,
-  NetworkSwitchMessage,
   NetworkSwitchFailedMessage,
   GasEstimateMessage,
   EnhancedInput
@@ -322,7 +320,7 @@ export function StakeForm() {
         <button
           onClick={handleStake}
           disabled={!address || !amount || step !== 'idle' || !userBalance || ethers.parseEther(amount || '0') > userBalance || parseFloat(amount || '0') < 50 || isLoading}
-          className={`w-full btn-crystal-success btn-glow-emerald btn-ripple ${isLoading ? 'opacity-75' : ''}`}
+          className={`w-full btn-crystal-success btn-glow-emerald btn-ripple mobile-touch-target ${isLoading ? 'opacity-75' : ''}`}
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
@@ -330,7 +328,7 @@ export function StakeForm() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              {step === 'approving' ? 'Approving Token...' : 'Staking Tokens...'}
+              <span className="text-sm sm:text-base">{step === 'approving' ? 'Approving Token...' : 'Staking Tokens...'}</span>
             </div>
           ) : (
             'Stake Tokens'
