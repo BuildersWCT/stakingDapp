@@ -40,22 +40,31 @@ const HomeContent = () => {
 
       {/* Header */}
       <header className="relative crystal-glass border-b sticky top-0 z-50 shadow-crystal">
-        <div className="max-w-6xl mx-auto px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-crystal animate-bounce crystal-gradient-primary">
-                <span className="text-white font-bold text-xl" style={{ fontFamily: 'serif' }}>💎</span>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          {/* Mobile: Logo and Connect - Desktop: Full Header */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
+            {/* Logo and Title */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shadow-crystal animate-bounce crystal-gradient-primary mobile-touch-target">
+                <span className="text-white font-bold text-lg sm:text-xl" style={{ fontFamily: 'serif' }}>💎</span>
               </div>
-              <div>
-                <h1 className="text-3xl font-light tracking-wide crystal-gradient-text" style={{ fontFamily: 'serif' }}>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-light tracking-wide crystal-gradient-text truncate" style={{ fontFamily: 'serif' }}>
                   Crystal Stakes
                 </h1>
-                <p className="text-sm font-medium" style={{ color: 'var(--crystal-primary-600)' }}>Elegant DeFi Experience</p>
+                <p className="text-xs sm:text-sm font-medium" style={{ color: 'var(--crystal-primary-600)' }}>Elegant DeFi Experience</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+
+            {/* Mobile: Connect Wallet Button */}
+            <div className="sm:hidden">
+              <ConnectWallet />
+            </div>
+
+            {/* Desktop: Full Controls */}
+            <div className="hidden sm:flex items-center space-x-3">
               <button
-                className="theme-toggle-btn"
+                className="theme-toggle-btn mobile-touch-target"
                 onClick={toggleTheme}
                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
@@ -76,9 +85,9 @@ const HomeContent = () => {
               <label htmlFor="theme-pref" className="sr-only">Theme preference</label>
               <select
                 id="theme-pref"
-                className="theme-select"
+                className="theme-select mobile-touch-target"
                 value={preference}
-                onChange={(e) => setPreference(e.target.value as any)}
+                onChange={(e) => setPreference(e.target.value as 'system' | 'light' | 'dark')}
                 title="Choose theme preference: System, Light, or Dark"
               >
                 <option value="system">System</option>
