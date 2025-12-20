@@ -4,6 +4,7 @@ export { HelpIcon } from './HelpIcon';
 export { InfoCard } from './InfoCard';
 export { NotificationToast } from './NotificationToast';
 export { EnhancedInput } from './EnhancedInput';
+export { MobileModal, useMobileModal, MobileModalPresets } from './MobileModal';
 export { 
   ErrorMessage, 
   WalletNotConnectedMessage, 
