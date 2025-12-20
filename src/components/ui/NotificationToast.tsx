@@ -179,7 +179,7 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
 
   return (
     <motion.div
-      className={`max-w-sm w-full shadow-lg rounded-lg pointer-events-auto border ${getBackgroundColor(notification.type)} mb-4`}
+      className={`w-full shadow-lg rounded-lg pointer-events-auto border mobile-touch-target ${getBackgroundColor(notification.type)} mb-4`}
       initial={{ opacity: 0, y: -100, scale: 0.8 }}
       animate={{ 
         opacity: isVisible ? 1 : 0, 
@@ -203,13 +203,13 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
       aria-live="polite"
       aria-atomic="true"
     >
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex items-start">
           <div className="flex-shrink-0">
             {getIcon(notification.type, isVisible)}
           </div>
-          <div className="ml-3 w-0 flex-1">
-            <p className={`text-sm font-medium ${getTextColor(notification.type)}`}>
+          <div className="ml-3 w-0 flex-1 min-w-0">
+            <p className={`text-sm sm:text-base font-medium ${getTextColor(notification.type)}`}>
               {notification.title}
             </p>
             {notification.message && (
@@ -218,14 +218,14 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({
               </p>
             )}
           </div>
-          <div className="ml-4 flex-shrink-0 flex">
+          <div className="ml-2 sm:ml-4 flex-shrink-0 flex">
             <button
-              className={`inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 p-1 ${getTextColor(notification.type)} hover:opacity-70 transition-opacity`}
+              className={`inline-flex rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 p-2 mobile-touch-target ${getTextColor(notification.type)} hover:opacity-70 transition-opacity`}
               onClick={handleDismiss}
               aria-label="Close notification"
             >
               <span className="sr-only">Close</span>
-              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </button>
@@ -242,11 +242,11 @@ export const NotificationContainer: React.FC<{
   onDismiss: (id: string) => void;
 }> = ({ notifications, onDismiss }) => {
   return (
-    <div className="fixed top-4 right-4 z-50 pointer-events-none">
-      <div className="flex flex-col items-end space-y-2">
+    <div className="notification-container fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:top-4 z-50 pointer-events-none">
+      <div className="flex flex-col items-stretch sm:items-end space-y-2 sm:space-y-2">
         <AnimatePresence mode="popLayout">
           {notifications.map((notification) => (
-            <div key={notification.id} className="pointer-events-auto">
+            <div key={notification.id} className="pointer-events-auto w-full sm:max-w-sm">
               <NotificationToast
                 notification={notification}
                 onDismiss={onDismiss}
