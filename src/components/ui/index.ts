@@ -5,6 +5,13 @@ export { InfoCard } from './InfoCard';
 export { NotificationToast } from './NotificationToast';
 export { EnhancedInput } from './EnhancedInput';
 export { MobileModal, useMobileModal, MobileModalPresets } from './MobileModal';
+
+// Loading Components
+export { LoadingSpinner } from './LoadingSpinner';
+export { ButtonSpinner } from './ButtonSpinner';
+export { PageLoader } from './PageLoader';
+export { CardLoader } from './CardLoader';
+export { InlineLoader } from './InlineLoader';
 export { 
   ErrorMessage, 
   WalletNotConnectedMessage, 

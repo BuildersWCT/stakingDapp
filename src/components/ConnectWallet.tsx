@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAppKit, useAppKitState } from '@reown/appkit/react';
 import { useAccount } from 'wagmi';
-import { HelpIcon, WalletNotConnectedMessage, WalletConnectionTimeoutMessage, UnsupportedWalletMessage } from './ui';
+import { HelpIcon, WalletNotConnectedMessage, WalletConnectionTimeoutMessage, UnsupportedWalletMessage, ButtonSpinner } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function ConnectWallet() {
@@ -104,7 +104,14 @@ export function ConnectWallet() {
         className={`bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
         title="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
       >
-        {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+        {isConnecting ? (
+          <div className="flex items-center justify-center">
+            <ButtonSpinner />
+            Connecting...
+          </div>
+        ) : (
+          'Connect Wallet'
+        )}
       </button>
       
       {/* Show error messages */}
