@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { client, GET_USER_TRANSACTIONS } from '../lib/subgraph';
+import { LoadingSpinner, ErrorMessage } from './ui';
 
 interface Transaction {
   id: string;
@@ -258,8 +259,8 @@ export function TransactionHistory() {
         </div>
       </div>
 
-      {loading && <div className="text-center py-8">Loading transactions...</div>}
-      {error && <div className="text-red-500 text-center py-4">{error}</div>}
+      {loading && <LoadingSpinner />}
+      {error && <ErrorMessage message={error} />}
 
       <div className="space-y-4">
         {paginatedTransactions.length === 0 && !loading && (
