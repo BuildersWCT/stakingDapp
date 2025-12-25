@@ -58,6 +58,8 @@ export function TransactionHistory() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // TODO: Implement subgraph queries
   useEffect(() => {
@@ -141,6 +143,12 @@ export function TransactionHistory() {
     return matchesType && matchesDateFrom && matchesDateTo;
   });
 
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   if (!address) {
     return (
       <div className="text-center py-8">
@@ -203,12 +211,12 @@ export function TransactionHistory() {
       {error && <div className="text-red-500 text-center py-4">{error}</div>}
 
       <div className="space-y-4">
-        {filteredTransactions.length === 0 && !loading && (
+        {paginatedTransactions.length === 0 && !loading && (
           <div className="text-center py-8 text-gray-500">
             No transactions found matching your filters.
           </div>
         )}
-        {filteredTransactions.map((tx) => (
+        {paginatedTransactions.map((tx) => (
           <div key={tx.id} className="border rounded-lg p-4 bg-white shadow-sm">
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -251,6 +259,29 @@ export function TransactionHistory() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-6">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 }
