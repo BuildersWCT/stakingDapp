@@ -65,6 +65,9 @@ export function TransactionHistory() {
   useEffect(() => {
     if (address) {
       fetchTransactions();
+      // Poll for updates every 30 seconds
+      const interval = setInterval(fetchTransactions, 30000);
+      return () => clearInterval(interval);
     }
   }, [address]);
 
