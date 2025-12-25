@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { client, GET_USER_TRANSACTIONS } from '../lib/subgraph';
 
 interface Transaction {
   id: string;
@@ -9,6 +10,44 @@ interface Transaction {
   transactionHash: string;
   blockNumber: number;
   status: 'confirmed' | 'pending' | 'failed';
+}
+
+interface SubgraphStake {
+  id: string;
+  user: string;
+  amount: string;
+  timestamp: string;
+  transactionHash: string;
+  blockNumber: string;
+}
+
+interface SubgraphWithdrawal {
+  id: string;
+  user: string;
+  amount: string;
+  timestamp: string;
+  transactionHash: string;
+  blockNumber: string;
+  rewardsAccrued: string;
+}
+
+interface SubgraphRewardClaim {
+  id: string;
+  user: string;
+  amount: string;
+  timestamp: string;
+  transactionHash: string;
+  blockNumber: string;
+}
+
+interface SubgraphEmergencyWithdrawal {
+  id: string;
+  user: string;
+  amount: string;
+  timestamp: string;
+  transactionHash: string;
+  blockNumber: string;
+  penalty: string;
 }
 
 export function TransactionHistory() {
@@ -25,23 +64,63 @@ export function TransactionHistory() {
   }, [address]);
 
   const fetchTransactions = async () => {
+    if (!address) return;
+
     setLoading(true);
     setError(null);
     try {
-      // TODO: Implement actual subgraph query
-      // For now, mock data
-      const mockTransactions: Transaction[] = [
-        {
-          id: '1',
-          type: 'stake',
-          amount: '1000',
-          timestamp: Date.now() - 86400000,
-          transactionHash: '0x123...',
-          blockNumber: 123456,
-          status: 'confirmed'
+      const { data } = await client.query({
+        query: GET_USER_TRANSACTIONS,
+        variables: {
+          user: address.toLowerCase(),
+          first: 50,
+          skip: 0,
+          orderBy: 'timestamp',
+          orderDirection: 'desc'
         }
-      ];
-      setTransactions(mockTransactions);
+      });
+
+      // Combine and transform data
+      const allTransactions: Transaction[] = [
+        ...data.stakes.map((stake: SubgraphStake) => ({
+          id: stake.id,
+          type: 'stake' as const,
+          amount: stake.amount,
+          timestamp: parseInt(stake.timestamp),
+          transactionHash: stake.transactionHash,
+          blockNumber: parseInt(stake.blockNumber),
+          status: 'confirmed' as const
+        })),
+        ...data.withdrawals.map((withdrawal: SubgraphWithdrawal) => ({
+          id: withdrawal.id,
+          type: 'unstake' as const,
+          amount: withdrawal.amount,
+          timestamp: parseInt(withdrawal.timestamp),
+          transactionHash: withdrawal.transactionHash,
+          blockNumber: parseInt(withdrawal.blockNumber),
+          status: 'confirmed' as const
+        })),
+        ...data.rewardClaims.map((claim: SubgraphRewardClaim) => ({
+          id: claim.id,
+          type: 'claim' as const,
+          amount: claim.amount,
+          timestamp: parseInt(claim.timestamp),
+          transactionHash: claim.transactionHash,
+          blockNumber: parseInt(claim.blockNumber),
+          status: 'confirmed' as const
+        })),
+        ...data.emergencyWithdrawals.map((emergency: SubgraphEmergencyWithdrawal) => ({
+          id: emergency.id,
+          type: 'emergency' as const,
+          amount: emergency.amount,
+          timestamp: parseInt(emergency.timestamp),
+          transactionHash: emergency.transactionHash,
+          blockNumber: parseInt(emergency.blockNumber),
+          status: 'confirmed' as const
+        }))
+      ].sort((a, b) => b.timestamp - a.timestamp);
+
+      setTransactions(allTransactions);
     } catch {
       setError('Failed to fetch transactions');
     } finally {
