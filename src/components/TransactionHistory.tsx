@@ -149,6 +149,40 @@ export function TransactionHistory() {
     currentPage * itemsPerPage
   );
 
+  const exportToCSV = () => {
+    const headers = ['Type', 'Amount', 'Date', 'Status', 'Transaction Hash', 'Block Number'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTransactions.map(tx => [
+        tx.type,
+        tx.amount,
+        new Date(tx.timestamp * 1000).toISOString(),
+        tx.status,
+        tx.transactionHash,
+        tx.blockNumber
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transaction-history.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportToJSON = () => {
+    const jsonContent = JSON.stringify(filteredTransactions, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'transaction-history.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (!address) {
     return (
       <div className="text-center py-8">
@@ -161,6 +195,20 @@ export function TransactionHistory() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Transaction History</h2>
+        <div className="flex space-x-2">
+          <button
+            onClick={exportToCSV}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={exportToJSON}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            Export JSON
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
