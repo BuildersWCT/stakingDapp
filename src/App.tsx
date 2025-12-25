@@ -10,7 +10,9 @@ import { SubgraphStats } from './components/SubgraphStats';
 import { TransactionHistory } from './components/TransactionHistory';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { NotificationContainer } from './components/ui/NotificationToast';
+import { NotificationCenter } from './components/NotificationCenter';
 import { NotificationTest } from './components/NotificationTest';
+import { useRewardReminder } from './hooks/useRewardReminder';
 
 // Theme provider & hook
 import ThemeProvider, { useTheme } from './theme/ThemeProvider';
@@ -20,8 +22,11 @@ import './styles/responsive-design.css';
 
 // Inner component that uses the notification hook
 const HomeContent = () => {
-  const { notifications, dismissNotification } = useNotification();
-  const { theme, preference, setPreference, toggleTheme } = useTheme();
+   const { notifications, dismissNotification } = useNotification();
+   const { theme, preference, setPreference, toggleTheme } = useTheme();
+
+   // Initialize reward reminder system
+   useRewardReminder();
 
   return (
     <div className="min-h-screen crystal-pattern crystal-particles relative overflow-hidden">
@@ -66,6 +71,8 @@ const HomeContent = () => {
 
             {/* Desktop: Full Controls */}
             <div className="hidden sm:flex items-center space-x-3">
+              <NotificationCenter />
+
               <button
                 className="theme-toggle-btn mobile-touch-target"
                 onClick={toggleTheme}
