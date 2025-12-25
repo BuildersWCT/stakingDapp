@@ -28,7 +28,7 @@ export function StakeForm() {
   const [showNetworkSwitchError, setShowNetworkSwitchError] = useState(false);
   const [showGasFeeWarning, setShowGasFeeWarning] = useState(false);
   const [estimatedGasFee, setEstimatedGasFee] = useState('');
-  const { showSuccess } = useNotification();
+  const { showSuccess, showStaking, showTransaction } = useNotification();
   const { 
     handleInsufficientFunds, 
     handleTransactionError,
@@ -106,6 +106,8 @@ export function StakeForm() {
         args: [stakingContractAddress, stakeAmount],
       });
 
+      showTransaction('Token Approval Confirmed', 'Your token approval has been confirmed on the blockchain.');
+
       setStep('staking');
 
       // Then, stake after approval is confirmed
@@ -119,7 +121,7 @@ export function StakeForm() {
       setStep('idle');
       setIsLoading(false);
       setAmount('');
-      showSuccess('Staking Successful!', `Successfully staked ${amount} HAPG tokens!`);
+      showStaking('Staking Successful!', `Successfully staked ${amount} HAPG tokens! Your rewards will start accumulating immediately.`);
 
     } catch (error: unknown) {
       console.error('Transaction failed:', error);

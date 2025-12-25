@@ -9,7 +9,7 @@ import { StepIndicator, claimSteps, ProgressBar, TransactionProgressBar, Skeleto
 export function ClaimRewards() {
   const { address } = useAccount();
   const [isClaiming, setIsClaiming] = useState(false);
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess, showError, showReward } = useNotification();
 
   // Check user's pending rewards with loading state
   const { data: pendingRewards, isLoading: isRewardsLoading } = useReadContract({
@@ -48,7 +48,7 @@ export function ClaimRewards() {
       });
 
       setIsClaiming(false);
-      showSuccess('Rewards Claimed!', `Successfully claimed ${ethers.formatEther(rewardsAmount)} HAPG tokens!`);
+      showReward('Rewards Claimed!', `Successfully claimed ${ethers.formatEther(rewardsAmount)} HAPG tokens! Your rewards have been added to your wallet.`);
     } catch (error: unknown) {
       console.error('Claim failed:', error);
       setIsClaiming(false);
