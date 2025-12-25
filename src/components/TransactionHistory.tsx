@@ -55,6 +55,9 @@ export function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [dateFrom, setDateFrom] = useState<string>('');
+  const [dateTo, setDateTo] = useState<string>('');
 
   // TODO: Implement subgraph queries
   useEffect(() => {
@@ -128,6 +131,16 @@ export function TransactionHistory() {
     }
   };
 
+  const filteredTransactions = transactions.filter((tx) => {
+    const matchesType = typeFilter === 'all' || tx.type === typeFilter;
+    const txDate = new Date(tx.timestamp * 1000);
+    const fromDate = dateFrom ? new Date(dateFrom) : null;
+    const toDate = dateTo ? new Date(dateTo) : null;
+    const matchesDateFrom = !fromDate || txDate >= fromDate;
+    const matchesDateTo = !toDate || txDate <= toDate;
+    return matchesType && matchesDateFrom && matchesDateTo;
+  });
+
   if (!address) {
     return (
       <div className="text-center py-8">
@@ -140,14 +153,62 @@ export function TransactionHistory() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Transaction History</h2>
-        {/* TODO: Add filters and export buttons */}
       </div>
 
-      {loading && <div>Loading transactions...</div>}
-      {error && <div className="text-red-500">{error}</div>}
+      {/* Filters */}
+      <div className="bg-gray-50 p-4 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Transaction Type
+            </label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            >
+              <option value="all">All Types</option>
+              <option value="stake">Stake</option>
+              <option value="unstake">Unstake</option>
+              <option value="claim">Claim Rewards</option>
+              <option value="emergency">Emergency Withdraw</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              From Date
+            </label>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              To Date
+            </label>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-8">Loading transactions...</div>}
+      {error && <div className="text-red-500 text-center py-4">{error}</div>}
 
       <div className="space-y-4">
-        {transactions.map((tx) => (
+        {filteredTransactions.length === 0 && !loading && (
+          <div className="text-center py-8 text-gray-500">
+            No transactions found matching your filters.
+          </div>
+        )}
+        {filteredTransactions.map((tx) => (
           <div key={tx.id} className="border rounded-lg p-4 bg-white shadow-sm">
             <div className="flex justify-between items-start">
               <div className="flex-1">
