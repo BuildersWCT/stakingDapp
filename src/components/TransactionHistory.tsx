@@ -148,24 +148,43 @@ export function TransactionHistory() {
 
       <div className="space-y-4">
         {transactions.map((tx) => (
-          <div key={tx.id} className="border rounded-lg p-4">
+          <div key={tx.id} className="border rounded-lg p-4 bg-white shadow-sm">
             <div className="flex justify-between items-start">
-              <div>
-                <p className="font-semibold capitalize">{tx.type}</p>
-                <p className="text-sm text-gray-600">{tx.amount} tokens</p>
-                <p className="text-xs text-gray-500">
-                  {new Date(tx.timestamp).toLocaleString()}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    tx.type === 'stake' ? 'bg-green-100 text-green-800' :
+                    tx.type === 'unstake' ? 'bg-blue-100 text-blue-800' :
+                    tx.type === 'claim' ? 'bg-purple-100 text-purple-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {tx.type}
+                  </span>
+                  <span className={`text-sm font-medium ${
+                    tx.status === 'confirmed' ? 'text-green-600' :
+                    tx.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
+                    {tx.status}
+                  </span>
+                </div>
+                <p className="text-lg font-semibold">{tx.amount} tokens</p>
+                <p className="text-sm text-gray-600">
+                  {new Date(tx.timestamp * 1000).toLocaleString()}
                 </p>
+                <p className="text-xs text-gray-500">Block #{tx.blockNumber}</p>
               </div>
               <div className="text-right">
-                <p className={`text-sm font-medium ${
-                  tx.status === 'confirmed' ? 'text-green-600' :
-                  tx.status === 'pending' ? 'text-yellow-600' : 'text-red-600'
-                }`}>
-                  {tx.status}
+                <a
+                  href={`https://etherscan.io/tx/${tx.transactionHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm underline"
+                >
+                  View on Etherscan
+                </a>
+                <p className="text-xs text-gray-500 mt-1 font-mono">
+                  {tx.transactionHash.slice(0, 10)}...{tx.transactionHash.slice(-8)}
                 </p>
-                {/* TODO: Add block explorer link */}
-                <p className="text-xs text-gray-500">{tx.transactionHash}</p>
               </div>
             </div>
           </div>
