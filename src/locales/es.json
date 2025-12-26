@@ -22,7 +22,17 @@
     "rewards": "Recompensas",
     "apy": "APY",
     "lockPeriod": "Período de Bloqueo",
-    "days": "días"
+    "days": "días",
+    "approving": "Aprobando Token...",
+    "stakingTokens": "Apostando Tokens...",
+    "minimum": "Mínimo",
+    "understandingStaking": "Entendiendo el Staking",
+    "stakingExplanation": "El staking es el proceso de bloquear tus tokens HAPG en el protocolo para ganar recompensas con el tiempo.",
+    "rewardsDesc": "Gana ingresos pasivos a través de las tarifas del protocolo",
+    "lockPeriodDesc": "Los tokens están bloqueados hasta que se retiren",
+    "minimumDesc": "Se requieren 50 tokens HAPG para apostar",
+    "gasFeesDesc": "Estimado 0.001-0.003 ETH para transacciones",
+    "safetyWarning": "Advertencia de Seguridad: Solo apuesta lo que puedas permitirte bloquear. Grandes cantidades deben apostarse con cuidado."
   },
   "network": {
     "switchNetwork": "Cambiar Red",
