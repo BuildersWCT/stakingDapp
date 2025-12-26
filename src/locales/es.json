@@ -1,0 +1,48 @@
+{
+  "common": {
+    "connectWallet": "Conectar Billetera",
+    "disconnect": "Desconectar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No"
+  },
+  "staking": {
+    "stake": "Apostar",
+    "unstake": "Desapostar",
+    "withdraw": "Retirar",
+    "claimRewards": "Reclamar Recompensas",
+    "stakeAmount": "Cantidad a Apostar",
+    "unstakeAmount": "Cantidad a Desapostar",
+    "availableBalance": "Saldo Disponible",
+    "stakedBalance": "Saldo Apostado",
+    "rewards": "Recompensas",
+    "apy": "APY",
+    "lockPeriod": "Período de Bloqueo",
+    "days": "días"
+  },
+  "network": {
+    "switchNetwork": "Cambiar Red",
+    "wrongNetwork": "Red Incorrecta",
+    "connectTo": "Conectar a"
+  },
+  "notifications": {
+    "transactionSuccess": "Transacción Exitosa",
+    "transactionFailed": "Transacción Fallida",
+    "stakeSuccess": "Apostamiento Exitoso",
+    "unstakeSuccess": "Desapostamiento Exitoso"
+  },
+  "wallet": {
+    "connectWallet": "Conectar Billetera",
+    "connecting": "Conectando...",
+    "network": "Red",
+    "viewAccount": "Ver Cuenta",
+    "switchNetwork": "Cambiar Red",
+    "walletNotConnected": "Billetera No Conectada",
+    "connectionTimeout": "Tiempo de Conexión Agotado",
+    "unsupportedWallet": "Billetera No Soportada"
+  }
+}
