@@ -1,0 +1,48 @@
+{
+  "common": {
+    "connectWallet": "Wallet Verbinden",
+    "disconnect": "Trennen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein"
+  },
+  "staking": {
+    "stake": "Staken",
+    "unstake": "Unstaken",
+    "withdraw": "Abheben",
+    "claimRewards": "Belohnungen Beanspruchen",
+    "stakeAmount": "Stake-Betrag",
+    "unstakeAmount": "Unstake-Betrag",
+    "availableBalance": "Verfügbarer Saldo",
+    "stakedBalance": "Gestakter Saldo",
+    "rewards": "Belohnungen",
+    "apy": "APY",
+    "lockPeriod": "Sperrfrist",
+    "days": "Tage"
+  },
+  "network": {
+    "switchNetwork": "Netzwerk Wechseln",
+    "wrongNetwork": "Falsches Netzwerk",
+    "connectTo": "Verbinden mit"
+  },
+  "notifications": {
+    "transactionSuccess": "Transaktion Erfolgreich",
+    "transactionFailed": "Transaktion Fehlgeschlagen",
+    "stakeSuccess": "Staking Erfolgreich",
+    "unstakeSuccess": "Unstaking Erfolgreich"
+  },
+  "wallet": {
+    "connectWallet": "Wallet Verbinden",
+    "connecting": "Verbinde...",
+    "network": "Netzwerk",
+    "viewAccount": "Konto Anzeigen",
+    "switchNetwork": "Netzwerk Wechseln",
+    "walletNotConnected": "Wallet Nicht Verbunden",
+    "connectionTimeout": "Verbindungszeitüberschreitung",
+    "unsupportedWallet": "Nicht Unterstützte Wallet"
+  }
+}

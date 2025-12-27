@@ -12,6 +12,7 @@ import { NotificationProvider, useNotification } from './components/Notification
 import { NotificationContainer } from './components/ui/NotificationToast';
 import { NotificationCenter } from './components/NotificationCenter';
 import { NotificationTest } from './components/NotificationTest';
+import { LanguageSelector } from './components/LanguageSelector';
 import { useRewardReminder } from './hooks/useRewardReminder';
 
 // Theme provider & hook
@@ -104,6 +105,8 @@ const HomeContent = () => {
                 <option value="light">Light</option>
                 <option value="dark">Dark</option>
               </select>
+
+              <LanguageSelector />
 
               <ConnectWallet />
             </div>

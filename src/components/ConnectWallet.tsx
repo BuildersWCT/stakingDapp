@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppKit, useAppKitState } from '@reown/appkit/react';
 import { useAccount } from 'wagmi';
 import { HelpIcon, WalletNotConnectedMessage, WalletConnectionTimeoutMessage, UnsupportedWalletMessage, ButtonSpinner } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function ConnectWallet() {
+  const { t } = useTranslation();
   const { open } = useAppKit();
   const { address, isConnected, isConnecting } = useAccount();
   const { selectedNetworkId } = useAppKitState();
@@ -69,7 +71,7 @@ export function ConnectWallet() {
       <div className="flex justify-end mb-8 space-x-2 sm:space-x-4">
         <div className="hidden sm:flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2">
           <span className="text-sm text-gray-600">
-            {selectedNetworkId ? `Network: ${selectedNetworkId}` : ''}
+            {selectedNetworkId ? `${t('wallet.network')}: ${selectedNetworkId}` : ''}
           </span>
           <HelpIcon
             content="Current blockchain network you're connected to. Different networks may have different transaction costs."
@@ -107,10 +109,10 @@ export function ConnectWallet() {
         {isConnecting ? (
           <div className="flex items-center justify-center">
             <ButtonSpinner />
-            Connecting...
+            {t('wallet.connecting')}
           </div>
         ) : (
-          'Connect Wallet'
+          t('wallet.connectWallet')
         )}
       </button>
       
