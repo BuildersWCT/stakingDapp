@@ -84,6 +84,7 @@ export function ConnectWallet() {
           onClick={() => open({ view: 'Account' })}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target"
           title="View account details, transaction history, and disconnect wallet"
+          aria-label={`View account details for ${address.slice(0, 6)}...${address.slice(-4)}`}
         >
           {address.slice(0, 6)}...{address.slice(-4)}
         </button>
@@ -91,8 +92,9 @@ export function ConnectWallet() {
           onClick={() => open({ view: 'Networks' })}
           className="bg-gray-600 hover:bg-gray-700 text-white px-2 sm:px-3 py-2 rounded-lg text-sm btn-crystal-utility btn-glow-gray btn-ripple mobile-touch-target"
           title="Switch to a different blockchain network for transactions"
+          aria-label="Switch to a different blockchain network"
         >
-          🔗
+          <span aria-hidden="true">🔗</span>
         </button>
       </div>
     );
@@ -105,6 +107,7 @@ export function ConnectWallet() {
         disabled={isConnecting}
         className={`bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
         title="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
+        aria-label={isConnecting ? "Connecting wallet" : "Connect wallet"}
       >
         {isConnecting ? (
           <div className="flex items-center justify-center">
@@ -118,20 +121,20 @@ export function ConnectWallet() {
       
       {/* Show error messages */}
       {showConnectionError && (
-        <div className="flex justify-end">
+        <div className="flex justify-end" role="alert" aria-live="assertive">
           <WalletNotConnectedMessage onConnect={() => handleConnectError('general')} />
         </div>
       )}
-      
+
       {showTimeoutError && (
-        <div className="flex justify-end">
+        <div className="flex justify-end" role="alert" aria-live="assertive">
           <WalletConnectionTimeoutMessage onRetry={() => handleConnectError('timeout')} />
         </div>
       )}
-      
+
       {showUnsupportedWalletError && (
-        <div className="flex justify-end">
-          <UnsupportedWalletMessage 
+        <div className="flex justify-end" role="alert" aria-live="assertive">
+          <UnsupportedWalletMessage
             supportedWallets={['MetaMask', 'WalletConnect', 'Coinbase Wallet']}
             onGetSupportedWallets={() => {
               // This would open a modal with supported wallets
