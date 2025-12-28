@@ -332,6 +332,12 @@ export function StakeForm() {
       <Tooltip content={isLoading ? 'Transaction in progress...' : 'Earn rewards by locking your tokens'}>
         <button
           onClick={handleStake}
+          onKeyDown={(e) => {
+            if (e.ctrlKey && e.key === 'Enter' && !e.defaultPrevented) {
+              e.preventDefault();
+              handleStake();
+            }
+          }}
           disabled={!address || !amount || step !== 'idle' || !userBalance || ethers.parseEther(amount || '0') > userBalance || parseFloat(amount || '0') < 50 || isLoading}
           className={`w-full btn-crystal-success btn-glow-emerald btn-ripple mobile-touch-target ${isLoading ? 'opacity-75' : ''}`}
           aria-label={isLoading ? (step === 'approving' ? 'Approving token for staking' : 'Staking tokens in progress') : 'Stake tokens to earn rewards'}

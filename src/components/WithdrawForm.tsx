@@ -210,6 +210,12 @@ export function WithdrawForm() {
       <Tooltip content="Get your staked tokens back">
         <button
           onClick={handleWithdraw}
+          onKeyDown={(e) => {
+            if (e.ctrlKey && e.key === 'Enter' && !e.defaultPrevented) {
+              e.preventDefault();
+              handleWithdraw();
+            }
+          }}
           disabled={!address || !amount || isWithdrawLoading || ethers.parseEther(amount || '0') > stakedAmount}
           className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed border-2 border-blue-500/30 btn-crystal-primary btn-glow-blue btn-ripple shadow-crystal"
           aria-label={isWithdrawLoading ? "Withdrawing tokens in progress" : "Withdraw staked tokens"}
