@@ -68,7 +68,7 @@ export function ClaimRewards() {
   const steps = claimSteps(isClaiming, hasRewards);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="form" aria-label="Claim rewards form">
       {/* Rewards Information */}
       <InfoCard
         title="Understanding Reward Claims"
@@ -94,7 +94,7 @@ export function ClaimRewards() {
 
       {/* Progress Step Indicator */}
       {(isClaiming || isClaimLoading) && (
-        <div className="crystal-glass rounded-2xl p-4">
+        <div className="crystal-glass rounded-2xl p-4" role="status" aria-live="polite" aria-label="Claim progress">
           <StepIndicator
             steps={steps}
             variant="horizontal"
@@ -178,6 +178,7 @@ export function ClaimRewards() {
           onClick={handleClaim}
           disabled={!address || isClaimLoading || isClaiming || rewardsAmount === BigInt(0)}
           className={`w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed btn-crystal-primary btn-glow-yellow btn-ripple shadow-crystal ${(isClaiming || isClaimLoading) ? 'opacity-75' : ''}`}
+          aria-label={isClaiming || isClaimLoading ? "Claiming rewards in progress" : hasRewards ? `Claim ${ethers.formatEther(rewardsAmount)} HAPG rewards` : "No rewards available to claim"}
         >
           {isClaiming || isClaimLoading ? (
             <div className="flex items-center justify-center">
