@@ -38,7 +38,7 @@ def create_pull_request():
         return False
 
     # GitHub API endpoint
-    url = "https://api.github.com/repos/Ryjen1/stakingDapp/pulls"
+    url = "https://api.github.com/repos/BuildersWCT/stakingDapp/pulls"
 
     # Headers
     headers = {
