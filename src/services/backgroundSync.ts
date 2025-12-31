@@ -66,6 +66,19 @@ class BackgroundSyncService {
     }
   }
 
+  // Register background sync when queuing transactions
+  async registerBackgroundSync(): Promise<void> {
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.sync.register('background-sync-transactions');
+        console.log('Background sync registered');
+      } catch (error) {
+        console.error('Failed to register background sync:', error);
+      }
+    }
+  }
+
   private async processTransaction(transaction: TransactionQueue): Promise<void> {
     try {
       const result = await this.executeTransaction(transaction);

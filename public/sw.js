@@ -160,35 +160,16 @@ self.addEventListener('sync', (event) => {
 // Function to sync pending transactions
 async function syncTransactions() {
   try {
-    // Get pending transactions from IndexedDB or local storage
-    const pendingTransactions = await getPendingTransactions();
-
-    for (const transaction of pendingTransactions) {
-      try {
-        await retryTransaction(transaction);
-        // Remove from pending if successful
-        await removePendingTransaction(transaction.id);
-      } catch (error) {
-        console.error('Failed to sync transaction:', transaction.id, error);
-        // Could implement retry logic with exponential backoff
-      }
+    // Since service worker can't access localStorage directly from main thread,
+    // we need to send a message to the main thread to trigger the sync
+    const clients = await self.clients.matchAll();
+    if (clients.length > 0) {
+      // Send message to main thread to trigger background sync
+      clients[0].postMessage({
+        type: 'trigger-background-sync'
+      });
     }
   } catch (error) {
     console.error('Background sync failed:', error);
   }
-}
-
-// Placeholder functions - implement based on your transaction system
-async function getPendingTransactions() {
-  // Implement: retrieve from IndexedDB
-  return [];
-}
-
-async function retryTransaction(transaction) {
-  // Implement: retry the transaction
-  throw new Error('Not implemented');
-}
-
-async function removePendingTransaction(id) {
-  // Implement: remove from storage
 }

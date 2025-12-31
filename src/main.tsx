@@ -27,6 +27,18 @@ if ('serviceWorker' in navigator) {
 // Request notification permission on app start
 pushNotifications.requestPermission();
 
+// Listen for service worker messages
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'trigger-background-sync') {
+      // Import and trigger background sync
+      import('./services/backgroundSync').then(({ backgroundSync }) => {
+        backgroundSync.triggerSync();
+      });
+    }
+  });
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Providers>

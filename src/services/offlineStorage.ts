@@ -74,10 +74,28 @@ class OfflineStorageService {
       const queue = this.getTransactionQueue();
       queue.push(queueItem);
       localStorage.setItem(this.TRANSACTION_QUEUE_KEY, JSON.stringify(queue));
+
+      // Register background sync for offline transactions
+      if (!navigator.onLine) {
+        this.registerBackgroundSync();
+      }
+
       return queueItem.id;
     } catch (error) {
       console.error('Failed to add transaction to queue:', error);
       throw error;
+    }
+  }
+
+  private async registerBackgroundSync(): Promise<void> {
+    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        await registration.sync.register('background-sync-transactions');
+        console.log('Background sync registered for offline transactions');
+      } catch (error) {
+        console.error('Failed to register background sync:', error);
+      }
     }
   }
 
