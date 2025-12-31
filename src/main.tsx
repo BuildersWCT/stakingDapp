@@ -11,6 +11,19 @@ import { Providers } from "./components/Providers.tsx";
 import './services/backgroundSync';
 import { pushNotifications } from './services/pushNotifications';
 
+// Register service worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('Service Worker registered successfully:', registration.scope);
+      })
+      .catch((error) => {
+        console.error('Service Worker registration failed:', error);
+      });
+  });
+}
+
 // Request notification permission on app start
 pushNotifications.requestPermission();
 
