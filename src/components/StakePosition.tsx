@@ -1,43 +1,17 @@
-import { useReadContract, useAccount } from 'wagmi';
-import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
-import { ethers } from 'ethers';
+import { useStakingData } from '../hooks/useStakingData';
 
 export function StakePosition() {
-  const { address } = useAccount();
+  const { position, isLoading, isOnline, hasOfflineData } = useStakingData();
 
-  const { data: userInfo } = useReadContract({
-    address: stakingContractAddress,
-    abi: stakingContractABI,
-    functionName: 'userInfo',
-    args: [address],
-  });
-
-  const { data: minLockDuration } = useReadContract({
-    address: stakingContractAddress,
-    abi: stakingContractABI,
-    functionName: 'minLockDuration',
-  });
-
-  const { data: pendingRewards } = useReadContract({
-    address: stakingContractAddress,
-    abi: stakingContractABI,
-    functionName: 'getPendingRewards',
-    args: [address],
-  });
-
-  if (!address) {
-    return <p>Please connect your wallet.</p>;
+  if (!position) {
+    if (isLoading) {
+      return <p>Loading staking data...</p>;
+    }
+    if (!isOnline && hasOfflineData) {
+      return <p>Unable to load staking data. Please check your connection.</p>;
+    }
+    return <p>Please connect your wallet to view your staking position.</p>;
   }
-
-  if (!userInfo || !minLockDuration) {
-    return <p>Loading...</p>;
-  }
-
-  const [stakedAmount, lastStakeTimestamp] = userInfo as [bigint, bigint, bigint, bigint];
-  const currentTime = BigInt(Math.floor(Date.now() / 1000));
-  const lockEndTime = lastStakeTimestamp + (minLockDuration as bigint);
-  const timeUntilUnlock = lockEndTime > currentTime ? Number(lockEndTime - currentTime) : 0;
-  const canWithdraw = timeUntilUnlock === 0;
 
   const formatTimeRemaining = (seconds: number) => {
     const days = Math.floor(seconds / (24 * 60 * 60));
@@ -53,10 +27,22 @@ export function StakePosition() {
     }
   };
 
-  const rewardsAmount = pendingRewards ? parseFloat(ethers.formatEther(pendingRewards as bigint)) : 0;
+  const rewardsAmount = parseFloat(position.rewards);
 
   return (
     <div className="space-y-8">
+      {/* Offline indicator */}
+      {position.isOffline && (
+        <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <p className="text-orange-800 font-medium">Viewing cached data - Connect to internet for live updates</p>
+          </div>
+        </div>
+      )}
+
       {/* Prominent Rewards Display */}
       {rewardsAmount > 0 && (
         <div className="bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-yellow-200 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
@@ -97,7 +83,7 @@ export function StakePosition() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-blue-900 mb-2" style={{ fontFamily: 'serif' }}>Staked Amount</h3>
-            <p className="text-3xl font-bold text-blue-700 mb-2">{ethers.formatEther(stakedAmount)}</p>
+            <p className="text-3xl font-bold text-blue-700 mb-2">{position.stakedAmount}</p>
             <p className="text-sm text-blue-600 font-medium">HAPG tokens locked</p>
           </div>
         </div>
@@ -113,19 +99,19 @@ export function StakePosition() {
           <div>
             <h3 className="text-lg font-semibold text-purple-900 mb-2" style={{ fontFamily: 'serif' }}>Time Until Unlock</h3>
             <p className="text-3xl font-bold text-purple-700 mb-2">
-              {timeUntilUnlock > 0 ? formatTimeRemaining(timeUntilUnlock) : 'Unlocked'}
+              {position.timeUntilUnlock > 0 ? formatTimeRemaining(position.timeUntilUnlock) : 'Unlocked'}
             </p>
             <p className="text-sm text-purple-600 font-medium">
-              {timeUntilUnlock > 0 ? 'Remaining lock time' : 'Ready for withdrawal'}
+              {position.timeUntilUnlock > 0 ? 'Remaining lock time' : 'Ready for withdrawal'}
             </p>
           </div>
         </div>
 
-        <div className={`group p-8 rounded-2xl border shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 ${canWithdraw ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'}`}>
+        <div className={`group p-8 rounded-2xl border shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 ${position.canWithdraw ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-200' : 'bg-gradient-to-br from-red-50 to-red-100 border-red-200'}`}>
           <div className="flex items-center justify-between mb-6">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ${canWithdraw ? 'bg-green-100' : 'bg-red-100'}`}>
-              <svg className={`w-6 h-6 ${canWithdraw ? 'text-green-600' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {canWithdraw ? (
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 ${position.canWithdraw ? 'bg-green-100' : 'bg-red-100'}`}>
+              <svg className={`w-6 h-6 ${position.canWithdraw ? 'text-green-600' : 'text-red-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {position.canWithdraw ? (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 ) : (
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -135,11 +121,11 @@ export function StakePosition() {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2" style={{ fontFamily: 'serif' }}>Withdrawal Status</h3>
-            <p className={`text-3xl font-bold mb-2 ${canWithdraw ? 'text-green-600' : 'text-red-600'}`}>
-              {canWithdraw ? 'Available' : 'Locked'}
+            <p className={`text-3xl font-bold mb-2 ${position.canWithdraw ? 'text-green-600' : 'text-red-600'}`}>
+              {position.canWithdraw ? 'Available' : 'Locked'}
             </p>
-            <p className={`text-sm font-medium ${canWithdraw ? 'text-green-600' : 'text-red-600'}`}>
-              {canWithdraw ? 'Ready to withdraw' : 'Time locked'}
+            <p className={`text-sm font-medium ${position.canWithdraw ? 'text-green-600' : 'text-red-600'}`}>
+              {position.canWithdraw ? 'Ready to withdraw' : 'Time locked'}
             </p>
           </div>
         </div>
@@ -167,19 +153,19 @@ export function StakePosition() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-indigo-900" style={{ fontFamily: 'serif' }}>Staking Progress</h3>
           <span className="text-sm font-medium text-indigo-600">
-            {timeUntilUnlock > 0 ? `${Math.max(0, 100 - Math.floor((timeUntilUnlock / (24 * 60 * 60)) * 10))}% Complete` : '100% Complete'}
+            {position.timeUntilUnlock > 0 ? `${Math.max(0, 100 - Math.floor((position.timeUntilUnlock / (24 * 60 * 60)) * 10))}% Complete` : '100% Complete'}
           </span>
         </div>
         <div className="w-full bg-indigo-200 rounded-full h-3">
-          <div 
+          <div
             className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500"
-            style={{ 
-              width: timeUntilUnlock > 0 ? `${Math.max(0, 100 - Math.floor((timeUntilUnlock / (24 * 60 * 60)) * 10))}%` : '100%' 
+            style={{
+              width: position.timeUntilUnlock > 0 ? `${Math.max(0, 100 - Math.floor((position.timeUntilUnlock / (24 * 60 * 60)) * 10))}%` : '100%'
             }}
           ></div>
         </div>
         <p className="text-xs text-indigo-600 mt-2 font-medium">
-          {timeUntilUnlock > 0 ? 'Keep staking to unlock full benefits' : 'Congratulations! Full benefits unlocked'}
+          {position.timeUntilUnlock > 0 ? 'Keep staking to unlock full benefits' : 'Congratulations! Full benefits unlocked'}
         </p>
       </div>
     </div>
