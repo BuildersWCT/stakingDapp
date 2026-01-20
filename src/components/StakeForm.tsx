@@ -3,12 +3,12 @@ import { useWriteContract, useAccount, useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI, testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { 
-  Tooltip, 
-  HelpIcon, 
-  InfoCard, 
-  MinimumAmountMessage, 
-  InsufficientFundsMessage, 
+import {
+  Tooltip,
+  HelpIcon,
+  InfoCard,
+  MinimumAmountMessage,
+  InsufficientFundsMessage,
   TransactionFailedMessage,
   NetworkSwitchMessage,
   NetworkSwitchFailedMessage,
@@ -18,6 +18,8 @@ import {
 } from './ui';
 import { StepIndicator, stakingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
+import { useOfflineMode } from '../hooks/useOfflineMode';
+import { pushNotifications } from '../services/pushNotifications';
 
 export function StakeForm() {
   const { address } = useAccount();
@@ -31,6 +33,7 @@ export function StakeForm() {
   const [showGasFeeWarning, setShowGasFeeWarning] = useState(false);
   const [estimatedGasFee, setEstimatedGasFee] = useState('');
   const { showSuccess } = useNotification();
+  const { isOffline, addToTransactionQueue } = useOfflineMode();
   const { 
     handleInsufficientFunds, 
     handleTransactionError,
@@ -96,6 +99,36 @@ export function StakeForm() {
       return;
     }
 
+    // Handle offline mode - queue transaction
+    if (isOffline) {
+      try {
+        const transactionId = addToTransactionQueue({
+          type: 'stake',
+          data: {
+            amount: amount,
+            address: address,
+            stakingToken: stakingToken,
+            stakeAmount: stakeAmount.toString()
+          }
+        });
+
+        // Show notification for queued transaction
+        await pushNotifications.notifyTransactionQueued('stake', amount);
+
+        setAmount('');
+        showSuccess('Transaction Queued!', `Staking ${amount} HAPG tokens will be processed when you're back online. Transaction ID: ${transactionId}`);
+        return;
+      } catch (error) {
+        console.error('Failed to queue transaction:', error);
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleStake();
+        });
+        return;
+      }
+    }
+
     try {
       setIsLoading(true);
       setStep('approving');
@@ -127,10 +160,10 @@ export function StakeForm() {
       console.error('Transaction failed:', error);
       setStep('idle');
       setIsLoading(false);
-      
+
       // Enhanced error handling with specific error types
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
-      
+
       if (errorMessage.includes('network') && errorMessage.includes('switch')) {
         setShowNetworkSwitchError(true);
         handleNetworkSwitchError(() => {
@@ -319,7 +352,19 @@ export function StakeForm() {
         )}
       </div>
       
-      <Tooltip content={isLoading ? 'Transaction in progress...' : 'Earn rewards by locking your tokens'}>
+      {/* Offline Mode Indicator */}
+      {isOffline && (
+        <div className="border rounded-2xl p-4 crystal-glass">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+            <p className="text-sm font-medium" style={{ color: 'var(--crystal-accent-amber)' }}>
+              📱 Offline Mode: Transactions will be queued
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Tooltip content={isLoading ? 'Transaction in progress...' : isOffline ? 'Transaction will be queued for later' : 'Earn rewards by locking your tokens'}>
         <button
           onClick={handleStake}
           disabled={!address || !amount || step !== 'idle' || !userBalance || ethers.parseEther(amount || '0') > userBalance || parseFloat(amount || '0') < 50 || isLoading}
@@ -330,6 +375,8 @@ export function StakeForm() {
               <ButtonSpinner color="white" />
               {step === 'approving' ? 'Approving Token...' : 'Staking Tokens...'}
             </div>
+          ) : isOffline ? (
+            'Queue Stake Transaction'
           ) : (
             'Stake Tokens'
           )}
