@@ -3,10 +3,10 @@ import { useWriteContract, useAccount, useWaitForTransactionReceipt, useReadCont
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
-import { 
-  Tooltip, 
-  HelpIcon, 
-  InfoCard, 
+import {
+  Tooltip,
+  HelpIcon,
+  InfoCard,
   ErrorMessage,
   InsufficientFundsMessage,
   TransactionFailedMessage,
@@ -14,6 +14,8 @@ import {
   ButtonSpinner
 } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
+import { useOfflineMode } from '../hooks/useOfflineMode';
+import { pushNotifications } from '../services/pushNotifications';
 
 export function WithdrawForm() {
   const { address } = useAccount();
@@ -22,6 +24,7 @@ export function WithdrawForm() {
   const [showTransactionError, setShowTransactionError] = useState(false);
   const [showNetworkError, setShowNetworkError] = useState(false);
   const { showSuccess } = useNotification();
+  const { isOffline, addToTransactionQueue } = useOfflineMode();
   const { 
     handleTransactionError,
     handleInsufficientStakedAmount
@@ -74,6 +77,35 @@ export function WithdrawForm() {
       return;
     }
 
+    // Handle offline mode - queue transaction
+    if (isOffline) {
+      try {
+        const transactionId = addToTransactionQueue({
+          type: 'unstake',
+          data: {
+            amount: amount,
+            address: address,
+            withdrawAmount: withdrawAmount.toString()
+          }
+        });
+
+        // Show notification for queued transaction
+        await pushNotifications.notifyTransactionQueued('unstake', amount);
+
+        setAmount('');
+        showSuccess('Transaction Queued!', `Withdrawing ${amount} HAPG tokens will be processed when you're back online. Transaction ID: ${transactionId}`);
+        return;
+      } catch (error) {
+        console.error('Failed to queue transaction:', error);
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleWithdraw();
+        });
+        return;
+      }
+    }
+
     try {
       await withdraw({
         address: stakingContractAddress,
@@ -86,10 +118,10 @@ export function WithdrawForm() {
       showSuccess('Withdrawal Successful!', `Successfully withdrew ${amount} HAPG tokens!`);
     } catch (error: unknown) {
       console.error('Withdraw failed:', error);
-      
+
       // Enhanced error handling with specific error types
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
-      
+
       if (errorMessage.includes('network') || errorMessage.includes('connection')) {
         setShowNetworkError(true);
         handleTransactionError(error, () => {
@@ -207,7 +239,20 @@ export function WithdrawForm() {
           }
         />
       </div>
-      <Tooltip content="Get your staked tokens back">
+
+      {/* Offline Mode Indicator */}
+      {isOffline && (
+        <div className="border rounded-2xl p-4 crystal-glass">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+            <p className="text-sm font-medium" style={{ color: 'var(--crystal-accent-amber)' }}>
+              📱 Offline Mode: Transactions will be queued
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Tooltip content={isWithdrawLoading ? 'Transaction in progress...' : isOffline ? 'Transaction will be queued for later' : 'Get your staked tokens back'}>
         <button
           onClick={handleWithdraw}
           disabled={!address || !amount || isWithdrawLoading || ethers.parseEther(amount || '0') > stakedAmount}
@@ -218,6 +263,8 @@ export function WithdrawForm() {
               <ButtonSpinner color="white" />
               Withdrawing...
             </div>
+          ) : isOffline ? (
+            'Queue Withdraw Transaction'
           ) : (
             'Withdraw Tokens'
           )}
