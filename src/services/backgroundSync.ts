@@ -1,5 +1,8 @@
 import { offlineStorage, type TransactionQueue } from './offlineStorage';
 
+// Service Worker type declarations
+declare const self: ServiceWorkerGlobalScope;
+
 interface SyncResult {
   success: boolean;
   transactionId: string;
@@ -128,94 +131,45 @@ class BackgroundSyncService {
   }
 
   private async executeTransaction(transaction: TransactionQueue): Promise<SyncResult> {
-    // Simulate transaction execution - replace with actual blockchain calls
-    switch (transaction.type) {
-      case 'stake':
-        return await this.executeStakeTransaction(transaction);
-      case 'unstake':
-        return await this.executeUnstakeTransaction(transaction);
-      case 'claim':
-        return await this.executeClaimTransaction(transaction);
-      default:
-        throw new Error(`Unknown transaction type: ${transaction.type}`);
+    // Send message to main thread to execute the transaction
+    // Since service worker can't access wallet, we delegate to main thread
+    const clients = await self.clients.matchAll();
+    if (clients.length > 0) {
+      return new Promise((resolve) => {
+        const messageId = `tx_${Date.now()}_${Math.random()}`;
+
+        // Listen for response from main thread
+        const messageHandler = (event: MessageEvent) => {
+          if (event.data && event.data.type === 'transaction-result' && event.data.messageId === messageId) {
+            self.removeEventListener('message', messageHandler);
+            resolve(event.data.result);
+          }
+        };
+
+        self.addEventListener('message', messageHandler);
+
+        // Send transaction to main thread for execution
+        clients[0].postMessage({
+          type: 'execute-queued-transaction',
+          transaction,
+          messageId
+        });
+
+        // Timeout after 30 seconds
+        setTimeout(() => {
+          self.removeEventListener('message', messageHandler);
+          resolve({
+            success: false,
+            transactionId: transaction.id,
+            error: 'Transaction execution timeout'
+          });
+        }, 30000);
+      });
+    } else {
+      throw new Error('No active clients to execute transaction');
     }
   }
 
-  private async executeStakeTransaction(transaction: TransactionQueue): Promise<SyncResult> {
-    // Simulate API call to stake tokens
-    try {
-      const { amount, address } = transaction.data;
-      
-      // In a real implementation, this would call your staking contract
-      console.log(`Executing stake transaction: ${amount} tokens for ${address}`);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate success (90% success rate for demo)
-      if (Math.random() > 0.1) {
-        return { success: true, transactionId: transaction.id };
-      } else {
-        throw new Error('Stake transaction failed');
-      }
-    } catch (error) {
-      return {
-        success: false,
-        transactionId: transaction.id,
-        error: error instanceof Error ? error.message : 'Stake failed'
-      };
-    }
-  }
-
-  private async executeUnstakeTransaction(transaction: TransactionQueue): Promise<SyncResult> {
-    // Simulate API call to unstake tokens
-    try {
-      const { amount, address } = transaction.data;
-      
-      console.log(`Executing unstake transaction: ${amount} tokens for ${address}`);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Simulate success (85% success rate for demo)
-      if (Math.random() > 0.15) {
-        return { success: true, transactionId: transaction.id };
-      } else {
-        throw new Error('Unstake transaction failed');
-      }
-    } catch (error) {
-      return {
-        success: false,
-        transactionId: transaction.id,
-        error: error instanceof Error ? error.message : 'Unstake failed'
-      };
-    }
-  }
-
-  private async executeClaimTransaction(transaction: TransactionQueue): Promise<SyncResult> {
-    // Simulate API call to claim rewards
-    try {
-      const { address } = transaction.data;
-      
-      console.log(`Executing claim transaction for ${address}`);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Simulate success (95% success rate for demo)
-      if (Math.random() > 0.05) {
-        return { success: true, transactionId: transaction.id };
-      } else {
-        throw new Error('Claim transaction failed');
-      }
-    } catch (error) {
-      return {
-        success: false,
-        transactionId: transaction.id,
-        error: error instanceof Error ? error.message : 'Claim failed'
-      };
-    }
-  }
 
   // Cleanup method
   destroy() {

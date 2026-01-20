@@ -35,6 +35,33 @@ if ('serviceWorker' in navigator) {
       import('./services/backgroundSync').then(({ backgroundSync }) => {
         backgroundSync.triggerSync();
       });
+    } else if (event.data && event.data.type === 'execute-queued-transaction') {
+      // Handle queued transaction execution
+      const { transaction, messageId } = event.data;
+
+      // Import transaction execution logic
+      import('./services/transactionExecutor').then(async ({ executeQueuedTransaction }) => {
+        try {
+          const result = await executeQueuedTransaction(transaction);
+          // Send result back to service worker
+          event.ports[0]?.postMessage({
+            type: 'transaction-result',
+            messageId,
+            result
+          });
+        } catch (error) {
+          // Send error back to service worker
+          event.ports[0]?.postMessage({
+            type: 'transaction-result',
+            messageId,
+            result: {
+              success: false,
+              transactionId: transaction.id,
+              error: error instanceof Error ? error.message : 'Transaction execution failed'
+            }
+          });
+        }
+      });
     }
   });
 }
