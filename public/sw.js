@@ -11,15 +11,20 @@ const STATIC_ASSETS = [
   '/manifest.webmanifest',
   '/pwa-192x192.svg',
   '/pwa-512x512.svg',
-  '/vite.svg'
+  '/vite.svg',
+  '/src/index.css',
+  '/src/App.css'
 ];
 
-// API endpoints to cache
+// API endpoints to cache (for future API integration)
 const API_ENDPOINTS = [
   '/api/staking-positions',
   '/api/rewards',
   '/api/protocol-stats'
 ];
+
+// Runtime cache for dynamic assets
+const RUNTIME_CACHE = 'crystal-stakes-runtime-v1';
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -38,7 +43,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== API_CACHE) {
+          if (cacheName !== STATIC_CACHE && cacheName !== API_CACHE && cacheName !== RUNTIME_CACHE) {
             console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
@@ -48,19 +53,24 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache or network
+// Fetch event - serve from cache or network with optimized strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Handle API requests
+  // Skip non-GET requests and external requests
+  if (request.method !== 'GET' || !url.origin.includes(self.location.origin)) {
+    return;
+  }
+
+  // Handle API requests with network-first strategy
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       caches.open(API_CACHE).then((cache) => {
         return fetch(request)
           .then((response) => {
-            // Cache successful GET requests
-            if (request.method === 'GET' && response.status === 200) {
+            // Cache successful responses
+            if (response.status === 200) {
               cache.put(request, response.clone());
             }
             return response;
@@ -74,25 +84,51 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle static assets
-  event.respondWith(
-    caches.match(request)
-      .then((response) => {
-        if (response) {
-          return response;
-        }
-        return fetch(request).then((response) => {
-          // Cache static assets
-          if (request.destination === 'document' ||
-              request.destination === 'script' ||
-              request.destination === 'style') {
-            const responseClone = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
+  // Handle static assets with cache-first strategy
+  if (request.destination === 'document' ||
+      request.destination === 'script' ||
+      request.destination === 'style' ||
+      request.destination === 'image' ||
+      request.destination === 'font') {
+
+    event.respondWith(
+      caches.match(request)
+        .then((response) => {
+          if (response) {
+            return response;
           }
-          return response;
-        });
+
+          return fetch(request).then((response) => {
+            // Cache successful responses
+            if (response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(STATIC_CACHE).then((cache) => {
+                cache.put(request, responseClone);
+              });
+            }
+            return response;
+          });
+        })
+    );
+    return;
+  }
+
+  // Handle other requests with network-first strategy
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache runtime assets
+        if (response.status === 200 && request.destination !== 'document') {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Try cache as fallback
+        return caches.match(request);
       })
   );
 });
