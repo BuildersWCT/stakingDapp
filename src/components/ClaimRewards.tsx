@@ -5,11 +5,14 @@ import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
 import { Tooltip, InfoCard, ButtonSpinner } from './ui/index';
 import { StepIndicator, claimSteps, ProgressBar, TransactionProgressBar, SkeletonLoader, CircularProgress } from './ui/index';
+import { useOfflineMode } from '../hooks/useOfflineMode';
+import { pushNotifications } from '../services/pushNotifications';
 
 export function ClaimRewards() {
   const { address } = useAccount();
   const [isClaiming, setIsClaiming] = useState(false);
   const { showSuccess, showError } = useNotification();
+  const { isOffline, addToTransactionQueue } = useOfflineMode();
 
   // Check user's pending rewards with loading state
   const { data: pendingRewards, isLoading: isRewardsLoading } = useReadContract({
@@ -38,9 +41,32 @@ export function ClaimRewards() {
       return;
     }
 
+    // Handle offline mode - queue transaction
+    if (isOffline) {
+      try {
+        const transactionId = addToTransactionQueue({
+          type: 'claim',
+          data: {
+            address: address,
+            rewardsAmount: rewardsAmount.toString()
+          }
+        });
+
+        // Show notification for queued transaction
+        await pushNotifications.notifyTransactionQueued('claim');
+
+        showSuccess('Transaction Queued!', `Claiming ${ethers.formatEther(rewardsAmount)} HAPG rewards will be processed when you're back online. Transaction ID: ${transactionId}`);
+        return;
+      } catch (error) {
+        console.error('Failed to queue transaction:', error);
+        showError('Queue Failed', error instanceof Error ? error.message : 'Failed to queue transaction. Please try again.');
+        return;
+      }
+    }
+
     try {
       setIsClaiming(true);
-      
+
       await claim({
         address: stakingContractAddress,
         abi: stakingContractABI,
@@ -173,7 +199,19 @@ export function ClaimRewards() {
         </div>
       )}
 
-      <Tooltip content={isClaiming ? "Processing your claim..." : hasRewards ? "Harvest your earned rewards" : "No rewards available to claim"}>
+      {/* Offline Mode Indicator */}
+      {isOffline && (
+        <div className="border rounded-2xl p-4 crystal-glass">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+            <p className="text-sm font-medium" style={{ color: 'var(--crystal-accent-amber)' }}>
+              📱 Offline Mode: Transactions will be queued
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Tooltip content={isClaiming ? "Processing your claim..." : isOffline ? "Transaction will be queued for later" : hasRewards ? "Harvest your earned rewards" : "No rewards available to claim"}>
         <button
           onClick={handleClaim}
           disabled={!address || isClaimLoading || isClaiming || rewardsAmount === BigInt(0)}
@@ -184,6 +222,8 @@ export function ClaimRewards() {
               <ButtonSpinner color="white" />
               Claiming...
             </div>
+          ) : isOffline && rewardsAmount > BigInt(0) ? (
+            'Queue Claim Transaction'
           ) : rewardsAmount === BigInt(0) ? (
             'No Rewards Available'
           ) : (
