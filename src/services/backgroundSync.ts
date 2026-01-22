@@ -1,8 +1,5 @@
 import { offlineStorage, type TransactionQueue } from './offlineStorage';
 
-// Service Worker type declarations
-declare const self: ServiceWorkerGlobalScope;
-
 interface SyncResult {
   success: boolean;
   transactionId: string;
@@ -71,15 +68,9 @@ class BackgroundSyncService {
 
   // Register background sync when queuing transactions
   async registerBackgroundSync(): Promise<void> {
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        await registration.sync.register('background-sync-transactions');
-        console.log('Background sync registered');
-      } catch (error) {
-        console.error('Failed to register background sync:', error);
-      }
-    }
+    // Background sync registration is handled by the offlineStorage service
+    // when transactions are queued while offline
+    console.log('Background sync registration requested');
   }
 
   private async processTransaction(transaction: TransactionQueue): Promise<void> {
@@ -131,43 +122,26 @@ class BackgroundSyncService {
   }
 
   private async executeTransaction(transaction: TransactionQueue): Promise<SyncResult> {
-    // Send message to main thread to execute the transaction
-    // Since service worker can't access wallet, we delegate to main thread
-    const clients = await self.clients.matchAll();
-    if (clients.length > 0) {
-      return new Promise((resolve) => {
-        const messageId = `tx_${Date.now()}_${Math.random()}`;
-
-        // Listen for response from main thread
-        const messageHandler = (event: MessageEvent) => {
-          if (event.data && event.data.type === 'transaction-result' && event.data.messageId === messageId) {
-            self.removeEventListener('message', messageHandler);
-            resolve(event.data.result);
-          }
-        };
-
-        self.addEventListener('message', messageHandler);
-
-        // Send transaction to main thread for execution
-        clients[0].postMessage({
-          type: 'execute-queued-transaction',
+    // Dispatch event to TransactionExecutor component to execute the transaction
+    return new Promise((resolve) => {
+      const event = new CustomEvent('execute-queued-transaction', {
+        detail: {
           transaction,
-          messageId
-        });
-
-        // Timeout after 30 seconds
-        setTimeout(() => {
-          self.removeEventListener('message', messageHandler);
-          resolve({
-            success: false,
-            transactionId: transaction.id,
-            error: 'Transaction execution timeout'
-          });
-        }, 30000);
+          resolve
+        }
       });
-    } else {
-      throw new Error('No active clients to execute transaction');
-    }
+
+      window.dispatchEvent(event);
+
+      // Timeout after 60 seconds
+      setTimeout(() => {
+        resolve({
+          success: false,
+          transactionId: transaction.id,
+          error: 'Transaction execution timeout'
+        });
+      }, 60000);
+    });
   }
 
 
