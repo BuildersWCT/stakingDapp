@@ -12,6 +12,7 @@ import { NotificationContainer } from './components/ui/NotificationToast';
 import { NotificationTest } from './components/NotificationTest';
 import { PWAService } from './components/PWAService';
 import { PWAStatusIndicator } from './components/PWAStatusIndicator';
+import { TransactionExecutor } from './components/TransactionExecutor';
 
 // Inner component that uses the notification hook
 const HomeContent = () => {
@@ -19,12 +20,13 @@ const HomeContent = () => {
 
   return (
     <div className="min-h-screen crystal-pattern crystal-particles relative overflow-hidden">
-      <NotificationContainer 
-        notifications={notifications} 
-        onDismiss={dismissNotification} 
+      <NotificationContainer
+        notifications={notifications}
+        onDismiss={dismissNotification}
       />
       <PWAService />
       <PWAStatusIndicator />
+      <TransactionExecutor />
       {/* Enhanced decorative background elements with crystal colors */}
       <div className="absolute top-0 left-0 w-full h-full crystal-noise">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-20 blur-xl animate-pulse" 
