@@ -66,6 +66,9 @@ async function executeStakeTransaction(transaction: TransactionQueue): Promise<T
   try {
     const { amount } = transaction.data as { amount: string };
 
+    // Note: In a real implementation, ensure that the approval transaction has been executed first
+    // to avoid ERC20InsufficientAllowance errors. Since transactions are queued in order,
+    // approval should be processed before stake.
     // Note: In a real implementation, you'd need to get the writeContract function
     // from a component that has access to wagmi hooks. For now, we'll simulate.
     console.log(`Executing queued stake transaction: ${amount} tokens`);
