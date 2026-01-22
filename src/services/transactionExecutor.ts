@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { type TransactionQueue } from './offlineStorage';
-import { pushNotifications } from './pushNotifications';
 
 interface TransactionResult {
   success: boolean;
@@ -8,8 +7,7 @@ interface TransactionResult {
   error?: string;
 }
 
-// This function executes queued transactions using wagmi hooks
-// Note: This needs to be called from a React component context where hooks are available
+// This function dispatches an event to trigger transaction execution in React component context
 export async function executeQueuedTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
     switch (transaction.type) {

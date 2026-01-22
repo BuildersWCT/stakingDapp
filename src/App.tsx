@@ -34,12 +34,13 @@ const HomeContent = () => {
 
   return (
     <div className="min-h-screen crystal-pattern crystal-particles relative overflow-hidden">
-      <NotificationContainer 
-        notifications={notifications} 
-        onDismiss={dismissNotification} 
+      <NotificationContainer
+        notifications={notifications}
+        onDismiss={dismissNotification}
       />
       <PWAService />
       <PWAStatusIndicator />
+      <TransactionExecutor />
       {/* Enhanced decorative background elements with crystal colors */}
       <div className="absolute top-0 left-0 w-full h-full crystal-noise">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-20 blur-xl animate-pulse" 

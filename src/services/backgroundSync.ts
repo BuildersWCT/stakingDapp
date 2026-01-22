@@ -83,15 +83,9 @@ class BackgroundSyncService {
 
   // Register background sync when queuing transactions
   async registerBackgroundSync(): Promise<void> {
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
-      try {
-        const registration = await navigator.serviceWorker.ready;
-        await registration.sync.register('background-sync-transactions');
-        console.log('Background sync registered');
-      } catch (error) {
-        console.error('Failed to register background sync:', error);
-      }
-    }
+    // Background sync registration is handled by the offlineStorage service
+    // when transactions are queued while offline
+    console.log('Background sync registration requested');
   }
 
   private async processTransaction(transaction: TransactionQueue): Promise<void> {
@@ -160,26 +154,15 @@ class BackgroundSyncService {
 
         self.addEventListener('message', messageHandler as any);
 
-        // Send transaction to main thread for execution
-        clients[0].postMessage({
-          type: 'execute-queued-transaction',
-          transaction,
-          messageId
+      // Timeout after 60 seconds
+      setTimeout(() => {
+        resolve({
+          success: false,
+          transactionId: transaction.id,
+          error: 'Transaction execution timeout'
         });
-
-        // Timeout after 30 seconds
-        setTimeout(() => {
-          self.removeEventListener('message', messageHandler);
-          resolve({
-            success: false,
-            transactionId: transaction.id,
-            error: 'Transaction execution timeout'
-          });
-        }, 30000);
-      });
-    } else {
-      throw new Error('No active clients to execute transaction');
-    }
+      }, 60000);
+    });
   }
 
 

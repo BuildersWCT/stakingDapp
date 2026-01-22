@@ -11,9 +11,7 @@ const STATIC_ASSETS = [
   '/manifest.webmanifest',
   '/pwa-192x192.svg',
   '/pwa-512x512.svg',
-  '/vite.svg',
-  '/src/index.css',
-  '/src/App.css'
+  '/vite.svg'
 ];
 
 // API endpoints to cache (for future API integration)
