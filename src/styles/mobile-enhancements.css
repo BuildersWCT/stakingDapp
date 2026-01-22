@@ -1,0 +1,222 @@
+/* Mobile-Specific Button and Touch Enhancements */
+
+/* Enhanced Button System for Mobile */
+@media (max-width: 768px) {
+  button {
+    min-height: 48px;
+    padding: 0.875em 1.75em;
+    font-size: 16px; /* Prevents zoom on iOS */
+    border-radius: 12px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 480px) {
+  button {
+    min-height: 52px;
+    padding: 1em 2em;
+    border-radius: 10px;
+  }
+}
+
+/* Mobile Touch Targets Enhancement */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mobile-touch-target {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    user-select: none;
+  }
+  
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    height: 48px;
+  }
+  
+  /* Enhanced mobile focus states */
+  .mobile-touch-target:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(244, 114, 182, 0.3);
+  }
+  
+  /* Touch feedback */
+  .mobile-touch-target:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-touch-target {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-touch-target {
+    min-height: 52px;
+    padding: 14px 18px;
+  }
+}
+
+/* Enhanced Mobile Touch Interactions */
+@media (hover: none) and (pointer: coarse) {
+  .btn-crystal-primary:active,
+  .btn-crystal-secondary:active,
+  .btn-crystal-success:active,
+  .btn-crystal-warning:active,
+  .btn-crystal-danger:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .btn-crystal-primary:hover,
+  .btn-crystal-secondary:hover,
+  .btn-crystal-success:hover,
+  .btn-crystal-warning:hover,
+  .btn-crystal-danger:hover {
+    transform: translateY(0);
+    box-shadow: inherit;
+  }
+}
+
+/* Mobile Swipe Gestures Support */
+.swipeable {
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+
+/* Mobile-optimized modal backdrop */
+@media (max-width: 768px) {
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* Mobile navigation patterns */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--crystal-glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--crystal-glass-border);
+  padding: 0.75rem 1rem;
+  z-index: 50;
+}
+
+.mobile-nav-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.mobile-nav-item:active {
+  background-color: rgba(244, 114, 182, 0.1);
+}
+
+/* Mobile form enhancements */
+@media (max-width: 768px) {
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .form-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    min-height: 48px;
+  }
+}
+
+/* Mobile card improvements */
+@media (max-width: 768px) {
+  .crystal-card {
+    margin-bottom: 1rem;
+    border-radius: 16px;
+  }
+  
+  .card-header {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+  
+  .card-content {
+    padding: 0 1.25rem 1.25rem;
+  }
+}
+
+/* Mobile loading states */
+@media (max-width: 768px) {
+  .loading-spinner {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .loading-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* Mobile notification positioning */
+@media (max-width: 768px) {
+  .notification-container {
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 60;
+  }
+  
+  .notification-toast {
+    margin-bottom: 0.75rem;
+    border-radius: 12px;
+    padding: 1rem;
+  }
+}
+
+/* Mobile accessibility improvements */
+@media (max-width: 768px) {
+  /* Increase touch target sizes for better accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* Better focus indicators for mobile */
+  .mobile-focusable:focus {
+    outline: 3px solid var(--crystal-primary-400);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+}

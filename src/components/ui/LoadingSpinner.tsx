@@ -97,11 +97,11 @@ const DefaultSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose 
 const CrystalSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose }> = ({ size, colors }) => (
   <div className={`relative ${size}`}>
     {/* Outer rotating ring */}
-    <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${colors.gradient} animate-spin`} style={{ 
+    <div className={`absolute inset-0 rounded-full border-2 border-transparent bg-gradient-to-r ${colors.gradient} animate-spin`} style={{
       maskImage: 'linear-gradient(transparent 40%, black)',
       WebkitMaskImage: 'linear-gradient(transparent 40%, black)',
     }} />
-    
+
     {/* Inner crystal gem */}
     <svg
       className={`absolute inset-0 ${size} animate-pulse`}
@@ -138,7 +138,7 @@ const CrystalSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose 
       {/* Sparkle effect */}
       <circle cx="12" cy="6" r="1" fill="white" className="animate-ping" opacity="0.8" />
     </svg>
-    
+
     {/* Glow effect */}
     <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${colors.gradient} opacity-20 blur-md animate-pulse`} />
   </div>
@@ -149,7 +149,7 @@ const CrystalSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose 
  */
 const DotsSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose }> = ({ size, colors }) => {
   const dotSize = size.includes('w-4') ? 'w-1 h-1' : size.includes('w-6') ? 'w-1.5 h-1.5' : size.includes('w-8') ? 'w-2 h-2' : size.includes('w-12') ? 'w-3 h-3' : 'w-4 h-4';
-  
+
   return (
     <div className={`flex items-center justify-center space-x-1 ${size}`}>
       {[0, 1, 2].map((i) => (
@@ -178,17 +178,17 @@ const PulseSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose }>
  */
 const RingSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose }> = ({ size, colors }) => (
   <div className={`relative ${size}`}>
-    <div 
+    <div
       className={`absolute inset-0 rounded-full border-4 ${colors.secondary.replace('text-', 'border-')}`}
     />
-    <div 
+    <div
       className={`absolute inset-0 rounded-full border-4 border-transparent animate-spin`}
       style={{
-        borderTopColor: colors.primary.includes('rose') ? '#f43f5e' : 
-                        colors.primary.includes('pink') ? '#ec4899' :
-                        colors.primary.includes('blue') ? '#3b82f6' :
-                        colors.primary.includes('emerald') ? '#10b981' :
-                        colors.primary.includes('amber') ? '#f59e0b' : '#ffffff',
+        borderTopColor: colors.primary.includes('rose') ? '#f43f5e' :
+          colors.primary.includes('pink') ? '#ec4899' :
+            colors.primary.includes('blue') ? '#3b82f6' :
+              colors.primary.includes('emerald') ? '#10b981' :
+                colors.primary.includes('amber') ? '#f59e0b' : '#ffffff',
       }}
     />
   </div>
@@ -197,18 +197,6 @@ const RingSpinner: React.FC<{ size: string; colors: typeof colorClasses.rose }> 
 /**
  * LoadingSpinner - A beautiful, accessible loading spinner component
  * with crystal/gem theme support for the staking dApp.
- * 
- * @example
- * // Basic usage
- * <LoadingSpinner />
- * 
- * @example
- * // Crystal themed with label
- * <LoadingSpinner variant="crystal" color="rose" label="Loading..." showLabel />
- * 
- * @example
- * // Large centered spinner
- * <LoadingSpinner size="xl" centered />
  */
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',

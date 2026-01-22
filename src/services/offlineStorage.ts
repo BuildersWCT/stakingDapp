@@ -12,7 +12,7 @@ export interface StakingData {
 
 export interface TransactionQueue {
   id: string;
-  type: 'stake' | 'unstake' | 'claim';
+  type: 'stake' | 'unstake' | 'claim' | 'approve';
   data: Record<string, unknown>;
   timestamp: number;
   retryCount: number;

@@ -1,0 +1,48 @@
+{
+  "common": {
+    "connectWallet": "Connecter le Portefeuille",
+    "disconnect": "Déconnecter",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "staking": {
+    "stake": "Miser",
+    "unstake": "Démiser",
+    "withdraw": "Retirer",
+    "claimRewards": "Réclamer les Récompenses",
+    "stakeAmount": "Montant à Miser",
+    "unstakeAmount": "Montant à Démiser",
+    "availableBalance": "Solde Disponible",
+    "stakedBalance": "Solde Mis",
+    "rewards": "Récompenses",
+    "apy": "APY",
+    "lockPeriod": "Période de Verrouillage",
+    "days": "jours"
+  },
+  "network": {
+    "switchNetwork": "Changer de Réseau",
+    "wrongNetwork": "Mauvais Réseau",
+    "connectTo": "Se Connecter à"
+  },
+  "notifications": {
+    "transactionSuccess": "Transaction Réussie",
+    "transactionFailed": "Transaction Échouée",
+    "stakeSuccess": "Mise Réussie",
+    "unstakeSuccess": "Démise Réussie"
+  },
+  "wallet": {
+    "connectWallet": "Connecter le Portefeuille",
+    "connecting": "Connexion...",
+    "network": "Réseau",
+    "viewAccount": "Voir le Compte",
+    "switchNetwork": "Changer de Réseau",
+    "walletNotConnected": "Portefeuille Non Connecté",
+    "connectionTimeout": "Délai de Connexion",
+    "unsupportedWallet": "Portefeuille Non Supporté"
+  }
+}

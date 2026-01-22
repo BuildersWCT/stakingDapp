@@ -1,0 +1,48 @@
+{
+  "common": {
+    "connectWallet": "连接钱包",
+    "disconnect": "断开连接",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "cancel": "取消",
+    "confirm": "确认",
+    "yes": "是",
+    "no": "否"
+  },
+  "staking": {
+    "stake": "质押",
+    "unstake": "取消质押",
+    "withdraw": "提取",
+    "claimRewards": "领取奖励",
+    "stakeAmount": "质押金额",
+    "unstakeAmount": "取消质押金额",
+    "availableBalance": "可用余额",
+    "stakedBalance": "已质押余额",
+    "rewards": "奖励",
+    "apy": "年化收益率",
+    "lockPeriod": "锁定周期",
+    "days": "天"
+  },
+  "network": {
+    "switchNetwork": "切换网络",
+    "wrongNetwork": "错误的网络",
+    "connectTo": "连接到"
+  },
+  "notifications": {
+    "transactionSuccess": "交易成功",
+    "transactionFailed": "交易失败",
+    "stakeSuccess": "质押成功",
+    "unstakeSuccess": "取消质押成功"
+  },
+  "wallet": {
+    "connectWallet": "连接钱包",
+    "connecting": "连接中...",
+    "network": "网络",
+    "viewAccount": "查看账户",
+    "switchNetwork": "切换网络",
+    "walletNotConnected": "钱包未连接",
+    "connectionTimeout": "连接超时",
+    "unsupportedWallet": "不支持的钱包"
+  }
+}

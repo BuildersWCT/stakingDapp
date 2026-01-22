@@ -1,17 +1,19 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppKit, useAppKitState } from '@reown/appkit/react';
 import { useAccount } from 'wagmi';
 import { HelpIcon, WalletNotConnectedMessage, WalletConnectionTimeoutMessage, UnsupportedWalletMessage, ButtonSpinner } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
 
 export function ConnectWallet() {
+  const { t } = useTranslation();
   const { open } = useAppKit();
   const { address, isConnected, isConnecting } = useAccount();
   const { selectedNetworkId } = useAppKitState();
   const [showConnectionError, setShowConnectionError] = useState(false);
   const [showTimeoutError, setShowTimeoutError] = useState(false);
   const [showUnsupportedWalletError, setShowUnsupportedWalletError] = useState(false);
-  const { 
+  const {
     handleWalletError,
     handleConnectionTimeout
   } = useErrorHandler({
@@ -33,7 +35,7 @@ export function ConnectWallet() {
     setShowTimeoutError(false);
     setShowUnsupportedWalletError(false);
     open({ view: 'Connect' });
-    
+
     // Set a timeout to detect connection issues
     setTimeout(() => {
       if (!isConnected && !isConnecting) {
@@ -66,10 +68,10 @@ export function ConnectWallet() {
 
   if (isConnected && address) {
     return (
-      <div className="flex justify-end mb-8 space-x-4">
-        <div className="flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2">
+      <div className="flex justify-end mb-8 space-x-2 sm:space-x-4">
+        <div className="hidden sm:flex items-center space-x-2 bg-gray-100 rounded-lg px-3 py-2">
           <span className="text-sm text-gray-600">
-            {selectedNetworkId ? `Network: ${selectedNetworkId}` : ''}
+            {selectedNetworkId ? `${t('wallet.network')}: ${selectedNetworkId}` : ''}
           </span>
           <HelpIcon
             content="Current blockchain network you're connected to. Different networks may have different transaction costs."
@@ -78,39 +80,29 @@ export function ConnectWallet() {
             size="sm"
           />
         </div>
-        <HelpIcon
-          content="View your account details, transaction history, and disconnect wallet"
-          position="bottom"
-          variant="primary"
-          size="sm"
+        <button
+          onClick={() => open({ view: 'Account' })}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target"
+          title="View account details, transaction history, and disconnect wallet"
+          aria-label={`View account details for ${address.slice(0, 6)}...${address.slice(-4)}`}
         >
-          <button
-            onClick={() => open({ view: 'Account' })}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium btn-crystal-secondary btn-glow-blue btn-ripple"
-          >
-            {address.slice(0, 6)}...{address.slice(-4)}
-          </button>
-        </HelpIcon>
-        <HelpIcon
-          content="Switch to a different blockchain network for transactions"
-          position="bottom"
-          variant="primary"
-          size="sm"
+          {address.slice(0, 6)}...{address.slice(-4)}
+        </button>
+        <button
+          onClick={() => open({ view: 'Networks' })}
+          className="bg-gray-600 hover:bg-gray-700 text-white px-2 sm:px-3 py-2 rounded-lg text-sm btn-crystal-utility btn-glow-gray btn-ripple mobile-touch-target"
+          title="Switch to a different blockchain network for transactions"
+          aria-label="Switch to a different blockchain network"
         >
-          <button
-            onClick={() => open({ view: 'Networks' })}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm btn-crystal-utility btn-glow-gray btn-ripple"
-          >
-            🔗
-          </button>
-        </HelpIcon>
+          <span aria-hidden="true">🔗</span>
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-end mb-8 space-y-4 flex-col">
-      <div className="flex justify-end">
+    <div className="flex justify-end mb-8 space-y-4 flex-col sm:flex-row sm:space-y-0 sm:items-center">
+      <div className="flex justify-end w-full">
         <HelpIcon
           content="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
           position="bottom"
@@ -120,36 +112,38 @@ export function ConnectWallet() {
           <button
             onClick={handleConnectClick}
             disabled={isConnecting}
-            className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
+            aria-label={isConnecting ? "Connecting wallet" : "Connect wallet"}
           >
             {isConnecting ? (
-              <span className="flex items-center">
-                <ButtonSpinner color="white" />
-                Connecting...
-              </span>
+              <div className="flex items-center justify-center">
+                <ButtonSpinner />
+                {t('wallet.connecting')}
+              </div>
             ) : (
-              'Connect Wallet'
+              t('wallet.connectWallet')
             )}
           </button>
         </HelpIcon>
       </div>
-      
+
       {/* Show error messages */}
       {showConnectionError && (
-        <div className="flex justify-end">
+        <div className="flex justify-end" role="alert" aria-live="assertive">
           <WalletNotConnectedMessage onConnect={() => handleConnectError('general')} />
         </div>
       )}
-      
+
       {showTimeoutError && (
-        <div className="flex justify-end">
+        <div className="flex justify-end" role="alert" aria-live="assertive">
           <WalletConnectionTimeoutMessage onRetry={() => handleConnectError('timeout')} />
         </div>
       )}
-      
+
       {showUnsupportedWalletError && (
-        <div className="flex justify-end">
-          <UnsupportedWalletMessage 
+        <div className="flex justify-end" role="alert" aria-live="assertive">
+          <UnsupportedWalletMessage
             supportedWallets={['MetaMask', 'WalletConnect', 'Coinbase Wallet']}
             onGetSupportedWallets={() => {
               // This would open a modal with supported wallets
