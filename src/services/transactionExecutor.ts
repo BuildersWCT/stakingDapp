@@ -15,6 +15,8 @@ interface TransactionResult {
 export async function executeQueuedTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
     switch (transaction.type) {
+      case 'approve':
+        return await executeApproveTransaction(transaction);
       case 'stake':
         return await executeStakeTransaction(transaction);
       case 'unstake':
@@ -34,9 +36,37 @@ export async function executeQueuedTransaction(transaction: TransactionQueue): P
   }
 }
 
+async function executeApproveTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
+  try {
+    const { amount, stakingToken, spender } = transaction.data as { amount: string; stakingToken: string; spender: string };
+
+    console.log(`Executing queued approve transaction: ${amount} tokens for ${spender}`);
+
+    // Simulate the actual approval process
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Send success notification
+    await pushNotifications.notifyTransactionSuccess('approve', amount);
+
+    return {
+      success: true,
+      transactionId: transaction.id
+    };
+  } catch (error) {
+    // Send failure notification
+    await pushNotifications.notifyTransactionFailed('approve', error instanceof Error ? error.message : 'Unknown error', 1);
+
+    return {
+      success: false,
+      transactionId: transaction.id,
+      error: error instanceof Error ? error.message : 'Approve transaction failed'
+    };
+  }
+}
+
 async function executeStakeTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
-    const { amount, stakingToken, stakeAmount } = transaction.data;
+    const { amount, stakingToken, stakeAmount } = transaction.data as { amount: string; stakingToken: string; stakeAmount: string };
 
     // Note: In a real implementation, you'd need to get the writeContract function
     // from a component that has access to wagmi hooks. For now, we'll simulate.
@@ -67,7 +97,7 @@ async function executeStakeTransaction(transaction: TransactionQueue): Promise<T
 
 async function executeUnstakeTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
-    const { amount } = transaction.data;
+    const { amount } = transaction.data as { amount: string };
 
     console.log(`Executing queued unstake transaction: ${amount} tokens`);
 
@@ -95,7 +125,7 @@ async function executeUnstakeTransaction(transaction: TransactionQueue): Promise
 
 async function executeClaimTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
-    const { rewardsAmount } = transaction.data;
+    const { rewardsAmount } = transaction.data as { rewardsAmount: string };
 
     console.log(`Executing queued claim transaction: ${ethers.formatEther(rewardsAmount)} tokens`);
 

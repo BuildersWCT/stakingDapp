@@ -85,8 +85,9 @@ class PushNotificationService {
   }
 
   // Predefined notification methods for staking events
-  async notifyTransactionQueued(type: 'stake' | 'unstake' | 'claim', amount?: string): Promise<void> {
+  async notifyTransactionQueued(type: 'approve' | 'stake' | 'unstake' | 'claim', amount?: string): Promise<void> {
     const messages = {
+      approve: `Approval transaction queued for ${amount || 'tokens'}`,
       stake: `Stake transaction queued for ${amount || 'tokens'}`,
       unstake: `Unstake transaction queued for ${amount || 'tokens'}`,
       claim: 'Claim rewards transaction queued'
@@ -100,8 +101,9 @@ class PushNotificationService {
     });
   }
 
-  async notifyTransactionSuccess(type: 'stake' | 'unstake' | 'claim', amount?: string): Promise<void> {
+  async notifyTransactionSuccess(type: 'approve' | 'stake' | 'unstake' | 'claim', amount?: string): Promise<void> {
     const messages = {
+      approve: `Successfully approved ${amount || 'tokens'}`,
       stake: `Successfully staked ${amount || 'tokens'}`,
       unstake: `Successfully unstaked ${amount || 'tokens'}`,
       claim: 'Successfully claimed rewards'
@@ -115,8 +117,9 @@ class PushNotificationService {
     });
   }
 
-  async notifyTransactionFailed(type: 'stake' | 'unstake' | 'claim', error: string, retries: number): Promise<void> {
+  async notifyTransactionFailed(type: 'approve' | 'stake' | 'unstake' | 'claim', error: string, retries: number): Promise<void> {
     const messages = {
+      approve: `Approval transaction failed: ${error}`,
       stake: `Stake transaction failed: ${error}`,
       unstake: `Unstake transaction failed: ${error}`,
       claim: `Claim transaction failed: ${error}`
