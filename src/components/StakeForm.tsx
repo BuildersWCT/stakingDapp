@@ -5,14 +5,10 @@ import { ethers } from 'ethers';
 import { useNotification } from './NotificationProvider';
 import {
   Tooltip,
-  HelpIcon,
   InfoCard,
   MinimumAmountMessage,
   InsufficientFundsMessage,
   TransactionFailedMessage,
-  NetworkSwitchMessage,
-  NetworkSwitchFailedMessage,
-  GasEstimateMessage,
   EnhancedInput,
   ButtonSpinner
 } from './ui';
@@ -99,10 +95,21 @@ export function StakeForm() {
       return;
     }
 
-    // Handle offline mode - queue transaction
+    // Handle offline mode - queue approval and stake transactions
     if (isOffline) {
       try {
-        const transactionId = addToTransactionQueue({
+        // Queue approval transaction first
+        const approveId = addToTransactionQueue({
+          type: 'approve',
+          data: {
+            amount: stakeAmount.toString(),
+            stakingToken: stakingToken,
+            spender: stakingContractAddress
+          }
+        });
+
+        // Queue stake transaction
+        const stakeId = addToTransactionQueue({
           type: 'stake',
           data: {
             amount: amount,
@@ -112,14 +119,14 @@ export function StakeForm() {
           }
         });
 
-        // Show notification for queued transaction
+        // Show notification for queued transactions
         await pushNotifications.notifyTransactionQueued('stake', amount);
 
         setAmount('');
-        showSuccess('Transaction Queued!', `Staking ${amount} HAPG tokens will be processed when you're back online. Transaction ID: ${transactionId}`);
+        showSuccess('Transactions Queued!', `Approval and staking of ${amount} HAPG tokens will be processed when you're back online. Approval ID: ${approveId}, Stake ID: ${stakeId}`);
         return;
       } catch (error) {
-        console.error('Failed to queue transaction:', error);
+        console.error('Failed to queue transactions:', error);
         setShowTransactionError(true);
         handleTransactionError(error, () => {
           setShowTransactionError(false);

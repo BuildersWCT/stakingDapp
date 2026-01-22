@@ -4,6 +4,7 @@ export { HelpIcon } from './HelpIcon';
 export { InfoCard } from './InfoCard';
 export { NotificationToast } from './NotificationToast';
 export { ErrorMessage, WalletNotConnectedMessage, InsufficientFundsMessage, NetworkErrorMessage, TransactionFailedMessage, MinimumAmountMessage } from './ErrorMessage';
+export { EnhancedInput } from './EnhancedInput';
 
 // Loading Spinner Components
 export { 
