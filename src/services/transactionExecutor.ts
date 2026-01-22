@@ -1,5 +1,3 @@
-import { useWriteContract } from 'wagmi';
-import { stakingContractAddress, stakingContractABI, testTokenAddress, testTokenABI } from '../lib/contracts';
 import { ethers } from 'ethers';
 import { type TransactionQueue } from './offlineStorage';
 import { pushNotifications } from './pushNotifications';
@@ -38,7 +36,7 @@ export async function executeQueuedTransaction(transaction: TransactionQueue): P
 
 async function executeApproveTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
-    const { amount, stakingToken, spender } = transaction.data as { amount: string; stakingToken: string; spender: string };
+    const { amount, spender } = transaction.data as { amount: string; spender: string };
 
     console.log(`Executing queued approve transaction: ${amount} tokens for ${spender}`);
 
@@ -66,7 +64,7 @@ async function executeApproveTransaction(transaction: TransactionQueue): Promise
 
 async function executeStakeTransaction(transaction: TransactionQueue): Promise<TransactionResult> {
   try {
-    const { amount, stakingToken, stakeAmount } = transaction.data as { amount: string; stakingToken: string; stakeAmount: string };
+    const { amount } = transaction.data as { amount: string };
 
     // Note: In a real implementation, you'd need to get the writeContract function
     // from a component that has access to wagmi hooks. For now, we'll simulate.
