@@ -13,7 +13,7 @@ export function ConnectWallet() {
   const [showConnectionError, setShowConnectionError] = useState(false);
   const [showTimeoutError, setShowTimeoutError] = useState(false);
   const [showUnsupportedWalletError, setShowUnsupportedWalletError] = useState(false);
-  const { 
+  const {
     handleWalletError,
     handleConnectionTimeout
   } = useErrorHandler({
@@ -35,7 +35,7 @@ export function ConnectWallet() {
     setShowTimeoutError(false);
     setShowUnsupportedWalletError(false);
     open({ view: 'Connect' });
-    
+
     // Set a timeout to detect connection issues
     setTimeout(() => {
       if (!isConnected && !isConnecting) {
@@ -101,24 +101,33 @@ export function ConnectWallet() {
   }
 
   return (
-    <div className="flex justify-end mb-8">
-      <button
-        onClick={handleConnectClick}
-        disabled={isConnecting}
-        className={`bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
-        title="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
-        aria-label={isConnecting ? "Connecting wallet" : "Connect wallet"}
-      >
-        {isConnecting ? (
-          <div className="flex items-center justify-center">
-            <ButtonSpinner />
-            {t('wallet.connecting')}
-          </div>
-        ) : (
-          t('wallet.connectWallet')
-        )}
-      </button>
-      
+    <div className="flex justify-end mb-8 space-y-4 flex-col sm:flex-row sm:space-y-0 sm:items-center">
+      <div className="flex justify-end w-full">
+        <HelpIcon
+          content="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
+          position="bottom"
+          variant="primary"
+          size="sm"
+        >
+          <button
+            onClick={handleConnectClick}
+            disabled={isConnecting}
+            className={`bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium btn-crystal-secondary btn-glow-blue btn-ripple mobile-touch-target ${isConnecting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Connect your crypto wallet to start using Crystal Stakes. Your wallet will store your HAPG tokens and handle transactions securely."
+            aria-label={isConnecting ? "Connecting wallet" : "Connect wallet"}
+          >
+            {isConnecting ? (
+              <div className="flex items-center justify-center">
+                <ButtonSpinner />
+                {t('wallet.connecting')}
+              </div>
+            ) : (
+              t('wallet.connectWallet')
+            )}
+          </button>
+        </HelpIcon>
+      </div>
+
       {/* Show error messages */}
       {showConnectionError && (
         <div className="flex justify-end" role="alert" aria-live="assertive">

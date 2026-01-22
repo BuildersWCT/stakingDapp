@@ -22,6 +22,17 @@ export function ProtocolStats() {
     functionName: 'getTotalRewards',
   });
 
+  const isLoading = isLoadingTotalStaked || isLoadingRewardRate || isLoadingTotalRewards;
+
+  // Show loading state while fetching data
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <CardLoader message="Loading protocol statistics..." />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Protocol Overview */}

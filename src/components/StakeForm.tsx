@@ -16,6 +16,8 @@ import {
 } from './ui';
 import { StepIndicator, stakingSteps, ProgressBar, TransactionProgressBar, SkeletonLoader } from './ui';
 import { useErrorHandler } from '../hooks/useErrorHandler';
+import { useOfflineMode } from '../hooks/useOfflineMode';
+import { pushNotifications } from '../services/pushNotifications';
 
 export function StakeForm() {
   const { address } = useAccount();
@@ -28,11 +30,14 @@ export function StakeForm() {
   const [showNetworkSwitchError, setShowNetworkSwitchError] = useState(false);
   const [showGasFeeWarning, setShowGasFeeWarning] = useState(false);
   const [estimatedGasFee, setEstimatedGasFee] = useState('');
+
   const { showSuccess, showStaking, showTransaction } = useNotification();
-  const { 
-    handleInsufficientFunds, 
+  const { isOffline, addToTransactionQueue } = useOfflineMode();
+
+  const {
+    handleInsufficientFunds,
     handleTransactionError,
-    handleNetworkSwitchError 
+    handleNetworkSwitchError
   } = useErrorHandler({
     onRetry: () => {
       setShowTransactionError(false);
@@ -94,6 +99,47 @@ export function StakeForm() {
       return;
     }
 
+    // Handle offline mode - queue approval and stake transactions
+    if (isOffline) {
+      try {
+        // Queue approval transaction first
+        const approveId = addToTransactionQueue({
+          type: 'approve',
+          data: {
+            amount: stakeAmount.toString(),
+            stakingToken: stakingToken,
+            spender: stakingContractAddress
+          }
+        });
+
+        // Queue stake transaction
+        const stakeId = addToTransactionQueue({
+          type: 'stake',
+          data: {
+            amount: amount,
+            address: address,
+            stakingToken: stakingToken,
+            stakeAmount: stakeAmount.toString()
+          }
+        });
+
+        // Show notification for queued transactions
+        await pushNotifications.notifyTransactionQueued('stake', amount);
+
+        setAmount('');
+        showSuccess('Transactions Queued!', `Approval and staking of ${amount} HAPG tokens will be processed when you're back online. Approval ID: ${approveId}, Stake ID: ${stakeId}`);
+        return;
+      } catch (error) {
+        console.error('Failed to queue transactions:', error);
+        setShowTransactionError(true);
+        handleTransactionError(error, () => {
+          setShowTransactionError(false);
+          handleStake();
+        });
+        return;
+      }
+    }
+
     try {
       setIsLoading(true);
       setStep('approving');
@@ -127,10 +173,10 @@ export function StakeForm() {
       console.error('Transaction failed:', error);
       setStep('idle');
       setIsLoading(false);
-      
+
       // Enhanced error handling with specific error types
       const errorMessage = error instanceof Error ? error.message.toLowerCase() : '';
-      
+
       if (errorMessage.includes('network') && errorMessage.includes('switch')) {
         setShowNetworkSwitchError(true);
         handleNetworkSwitchError(() => {
@@ -302,19 +348,19 @@ export function StakeForm() {
           size="lg"
           helpText="Enter the amount of HAPG tokens you want to stake. The minimum amount is 50 tokens. Higher amounts may earn more rewards proportionally."
           error={
-            showMinimumAmountError 
-              ? "Minimum stake amount is 50 HAPG tokens" 
-              : showInsufficientFundsError 
-              ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
-              : undefined
+            showMinimumAmountError
+              ? "Minimum stake amount is 50 HAPG tokens"
+              : showInsufficientFundsError
+                ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
+                : undefined
           }
           success={
             amount && parseFloat(amount) >= 50 && userBalance && ethers.parseEther(amount || '0') <= userBalance
-              ? true 
+              ? true
               : undefined
           }
         />
-        
+
         {/* Progress bar for stake amount validation */}
         {amount && (
           <div className="mt-3">
@@ -328,8 +374,20 @@ export function StakeForm() {
           </div>
         )}
       </div>
-      
-      <Tooltip content={isLoading ? 'Transaction in progress...' : 'Earn rewards by locking your tokens'}>
+
+      {/* Offline Mode Indicator */}
+      {isOffline && (
+        <div className="border rounded-2xl p-4 crystal-glass">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+            <p className="text-sm font-medium" style={{ color: 'var(--crystal-accent-amber)' }}>
+              📱 Offline Mode: Transactions will be queued
+            </p>
+          </div>
+        </div>
+      )}
+
+      <Tooltip content={isLoading ? 'Transaction in progress...' : isOffline ? 'Transaction will be queued for later' : 'Earn rewards by locking your tokens'}>
         <button
           onClick={handleStake}
           onKeyDown={(e) => {
@@ -344,9 +402,11 @@ export function StakeForm() {
         >
           {isLoading ? (
             <div className="flex items-center justify-center">
-              <ButtonSpinner />
-              <span className="text-sm sm:text-base">{step === 'approving' ? 'Approving Token...' : 'Staking Tokens...'}</span>
+              <ButtonSpinner color="white" />
+              {step === 'approving' ? 'Approving Token...' : 'Staking Tokens...'}
             </div>
+          ) : isOffline ? (
+            'Queue Stake Transaction'
           ) : (
             'Stake Tokens'
           )}

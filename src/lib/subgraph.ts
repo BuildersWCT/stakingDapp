@@ -1,10 +1,10 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { ApolloClient, InMemoryCache, gql, HttpLink } from '@apollo/client';
 
 // TODO: Replace with actual subgraph URL
 const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/your-org/your-subgraph';
 
 export const client = new ApolloClient({
-  uri: SUBGRAPH_URL,
+  link: new HttpLink({ uri: SUBGRAPH_URL }),
   cache: new InMemoryCache(),
 });
 

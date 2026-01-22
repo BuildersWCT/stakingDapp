@@ -1,21 +1,19 @@
-import { vi } from 'vitest';
-
 // Mock window.ethereum
 export const mockEthereum = {
   isMetaMask: true,
-  request: vi.fn(),
-  on: vi.fn(),
-  removeListener: vi.fn(),
-  isConnected: vi.fn(() => true),
+  request: jest.fn(),
+  on: jest.fn(),
+  removeListener: jest.fn(),
+  isConnected: jest.fn(() => true),
   selectedAddress: '0x1234567890123456789012345678901234567890',
 };
 
 // Mock ethereum provider
 export const mockProvider = {
-  request: vi.fn(),
-  on: vi.fn(),
-  removeListener: vi.fn(),
-  isConnected: vi.fn(() => true),
+  request: jest.fn(),
+  on: jest.fn(),
+  removeListener: jest.fn(),
+  isConnected: jest.fn(() => true),
   selectedAddress: '0x1234567890123456789012345678901234567890',
 };
 
@@ -59,21 +57,21 @@ export const mockContractRead = {
 
 // Mock contract write operations
 export const mockContractWrite = {
-  stake: vi.fn().mockResolvedValue({
+  stake: jest.fn().mockResolvedValue({
     hash: mockTransaction.hash,
-    wait: vi.fn().mockResolvedValue({ status: 1 }),
+    wait: jest.fn().mockResolvedValue({ status: 1 }),
   }),
-  withdraw: vi.fn().mockResolvedValue({
+  withdraw: jest.fn().mockResolvedValue({
     hash: mockTransaction.hash,
-    wait: vi.fn().mockResolvedValue({ status: 1 }),
+    wait: jest.fn().mockResolvedValue({ status: 1 }),
   }),
-  claimRewards: vi.fn().mockResolvedValue({
+  claimRewards: jest.fn().mockResolvedValue({
     hash: mockTransaction.hash,
-    wait: vi.fn().mockResolvedValue({ status: 1 }),
+    wait: jest.fn().mockResolvedValue({ status: 1 }),
   }),
-  emergencyWithdraw: vi.fn().mockResolvedValue({
+  emergencyWithdraw: jest.fn().mockResolvedValue({
     hash: mockTransaction.hash,
-    wait: vi.fn().mockResolvedValue({ status: 1 }),
+    wait: jest.fn().mockResolvedValue({ status: 1 }),
   }),
 };
 
@@ -116,19 +114,19 @@ export const setupWeb3Mocks = () => {
 
 // Cleanup mocks
 export const cleanupWeb3Mocks = () => {
-  vi.clearAllMocks();
+  jest.clearAllMocks();
 };
 
 // Mock wagmi hooks
 export const mockWagmiHooks = {
-  useAccount: vi.fn(() => ({
+  useAccount: jest.fn(() => ({
     address: mockAccount.address,
     isConnected: true,
     isConnecting: false,
     isDisconnected: false,
   })),
-  useChainId: vi.fn(() => mockChain.id),
-  useBalance: vi.fn(() => ({
+  useChainId: jest.fn(() => mockChain.id),
+  useBalance: jest.fn(() => ({
     data: {
       formatted: '1.0',
       value: mockAccount.balance,
@@ -137,18 +135,18 @@ export const mockWagmiHooks = {
     isLoading: false,
     isError: false,
   })),
-  useWaitForTransaction: vi.fn(() => ({
+  useWaitForTransaction: jest.fn(() => ({
     data: { status: 1 },
     isLoading: false,
     isError: false,
   })),
-  useContractRead: vi.fn(() => ({
+  useContractRead: jest.fn(() => ({
     data: mockContractRead.stakeTokenBalance,
     isLoading: false,
     isError: false,
   })),
-  useContractWrite: vi.fn(() => ({
-    write: vi.fn(),
+  useContractWrite: jest.fn(() => ({
+    write: jest.fn(),
     isLoading: false,
     isError: false,
   })),
@@ -156,11 +154,11 @@ export const mockWagmiHooks = {
 
 // Mock viem client
 export const mockPublicClient = {
-  getBalance: vi.fn().mockResolvedValue(BigInt(mockAccount.balance)),
-  getBlockNumber: vi.fn().mockResolvedValue(BigInt(1000000)),
-  getTransactionCount: vi.fn().mockResolvedValue(BigInt(42)),
-  readContract: vi.fn().mockResolvedValue(BigInt(mockContractRead.stakeTokenBalance)),
-  simulateContract: vi.fn().mockResolvedValue({
+  getBalance: jest.fn().mockResolvedValue(BigInt(mockAccount.balance)),
+  getBlockNumber: jest.fn().mockResolvedValue(BigInt(1000000)),
+  getTransactionCount: jest.fn().mockResolvedValue(BigInt(42)),
+  readContract: jest.fn().mockResolvedValue(BigInt(mockContractRead.stakeTokenBalance)),
+  simulateContract: jest.fn().mockResolvedValue({
     result: BigInt(100000),
     request: {},
   }),

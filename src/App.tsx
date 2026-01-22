@@ -13,6 +13,8 @@ import { NotificationProvider, useNotification } from './components/Notification
 import { NotificationContainer } from './components/ui/NotificationToast';
 import { NotificationCenter } from './components/NotificationCenter';
 import { NotificationTest } from './components/NotificationTest';
+import { PWAService } from './components/PWAService';
+import { PWAStatusIndicator } from './components/PWAStatusIndicator';
 import { LanguageSelector } from './components/LanguageSelector';
 import { useRewardReminder } from './hooks/useRewardReminder';
 
@@ -36,6 +38,8 @@ const HomeContent = () => {
         notifications={notifications} 
         onDismiss={dismissNotification} 
       />
+      <PWAService />
+      <PWAStatusIndicator />
       {/* Enhanced decorative background elements with crystal colors */}
       <div className="absolute top-0 left-0 w-full h-full crystal-noise">
         <div className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-20 blur-xl animate-pulse" 
