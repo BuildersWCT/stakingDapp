@@ -9,6 +9,8 @@ import {
   MinimumAmountMessage,
   InsufficientFundsMessage,
   TransactionFailedMessage,
+  NetworkSwitchFailedMessage,
+  GasEstimateMessage,
   EnhancedInput,
   ButtonSpinner
 } from './ui';
@@ -28,12 +30,14 @@ export function StakeForm() {
   const [showNetworkSwitchError, setShowNetworkSwitchError] = useState(false);
   const [showGasFeeWarning, setShowGasFeeWarning] = useState(false);
   const [estimatedGasFee, setEstimatedGasFee] = useState('');
-  const { showSuccess } = useNotification();
+
+  const { showSuccess, showStaking, showTransaction } = useNotification();
   const { isOffline, addToTransactionQueue } = useOfflineMode();
-  const { 
-    handleInsufficientFunds, 
+
+  const {
+    handleInsufficientFunds,
     handleTransactionError,
-    handleNetworkSwitchError 
+    handleNetworkSwitchError
   } = useErrorHandler({
     onRetry: () => {
       setShowTransactionError(false);
@@ -148,6 +152,8 @@ export function StakeForm() {
         args: [stakingContractAddress, stakeAmount],
       });
 
+      showTransaction('Token Approval Confirmed', 'Your token approval has been confirmed on the blockchain.');
+
       setStep('staking');
 
       // Then, stake after approval is confirmed
@@ -161,7 +167,7 @@ export function StakeForm() {
       setStep('idle');
       setIsLoading(false);
       setAmount('');
-      showSuccess('Staking Successful!', `Successfully staked ${amount} HAPG tokens!`);
+      showStaking('Staking Successful!', `Successfully staked ${amount} HAPG tokens! Your rewards will start accumulating immediately.`);
 
     } catch (error: unknown) {
       console.error('Transaction failed:', error);
@@ -194,7 +200,7 @@ export function StakeForm() {
   const steps = stakingSteps(step);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="form" aria-label="Staking form">
       {/* Staking Explanation */}
       <InfoCard
         title="Understanding Staking"
@@ -220,7 +226,7 @@ export function StakeForm() {
 
       {/* Progress Step Indicator */}
       {isLoading && (
-        <div className="crystal-glass rounded-2xl p-4">
+        <div className="crystal-glass rounded-2xl p-4" role="status" aria-live="polite" aria-label="Staking progress">
           <StepIndicator
             steps={steps}
             variant="horizontal"
@@ -253,60 +259,70 @@ export function StakeForm() {
 
       {/* Error Messages */}
       {showMinimumAmountError && (
-        <MinimumAmountMessage
-          minimum="50 HAPG"
-          onAdjust={() => {
-            setAmount('50');
-            setShowMinimumAmountError(false);
-          }}
-        />
+        <div role="alert" aria-live="assertive">
+          <MinimumAmountMessage
+            minimum="50 HAPG"
+            onAdjust={() => {
+              setAmount('50');
+              setShowMinimumAmountError(false);
+            }}
+          />
+        </div>
       )}
 
       {showInsufficientFundsError && userBalance && (
-        <InsufficientFundsMessage
-          available={`${parseFloat(ethers.formatEther(userBalance)).toFixed(2)} HAPG`}
-          required={`${parseFloat(amount).toFixed(2)} HAPG`}
-          onGetTokens={() => {
-            // This would open a modal or redirect to get tokens
-            console.log('Open get tokens modal');
-          }}
-        />
+        <div role="alert" aria-live="assertive">
+          <InsufficientFundsMessage
+            available={`${parseFloat(ethers.formatEther(userBalance)).toFixed(2)} HAPG`}
+            required={`${parseFloat(amount).toFixed(2)} HAPG`}
+            onGetTokens={() => {
+              // This would open a modal or redirect to get tokens
+              console.log('Open get tokens modal');
+            }}
+          />
+        </div>
       )}
 
       {showTransactionError && (
-        <TransactionFailedMessage
-          onRetry={() => {
-            setShowTransactionError(false);
-            handleStake();
-          }}
-          onContactSupport={() => {
-            // This would open support contact modal
-            console.log('Open support contact modal');
-          }}
-        />
+        <div role="alert" aria-live="assertive">
+          <TransactionFailedMessage
+            onRetry={() => {
+              setShowTransactionError(false);
+              handleStake();
+            }}
+            onContactSupport={() => {
+              // This would open support contact modal
+              console.log('Open support contact modal');
+            }}
+          />
+        </div>
       )}
 
       {showNetworkSwitchError && (
-        <NetworkSwitchFailedMessage
-          onRetry={() => {
-            setShowNetworkSwitchError(false);
-            handleStake();
-          }}
-          onSwitchManually={() => {
-            // This would open manual network switch instructions
-            console.log('Open manual network switch instructions');
-          }}
-        />
+        <div role="alert" aria-live="assertive">
+          <NetworkSwitchFailedMessage
+            onRetry={() => {
+              setShowNetworkSwitchError(false);
+              handleStake();
+            }}
+            onSwitchManually={() => {
+              // This would open manual network switch instructions
+              console.log('Open manual network switch instructions');
+            }}
+          />
+        </div>
       )}
 
       {showGasFeeWarning && (
-        <GasEstimateMessage
-          estimated={estimatedGasFee}
-          onContinue={() => {
-            setShowGasFeeWarning(false);
-            handleStake();
-          }}
-        />
+        <div role="alert" aria-live="assertive">
+          <GasEstimateMessage
+            estimated={estimatedGasFee}
+            onContinue={() => {
+              setShowGasFeeWarning(false);
+              handleStake();
+            }}
+          />
+        </div>
       )}
 
       <div>
@@ -332,19 +348,19 @@ export function StakeForm() {
           size="lg"
           helpText="Enter the amount of HAPG tokens you want to stake. The minimum amount is 50 tokens. Higher amounts may earn more rewards proportionally."
           error={
-            showMinimumAmountError 
-              ? "Minimum stake amount is 50 HAPG tokens" 
-              : showInsufficientFundsError 
-              ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
-              : undefined
+            showMinimumAmountError
+              ? "Minimum stake amount is 50 HAPG tokens"
+              : showInsufficientFundsError
+                ? `Insufficient balance. You have ${userBalance ? parseFloat(ethers.formatEther(userBalance)).toFixed(2) : '0.00'} HAPG tokens`
+                : undefined
           }
           success={
             amount && parseFloat(amount) >= 50 && userBalance && ethers.parseEther(amount || '0') <= userBalance
-              ? true 
+              ? true
               : undefined
           }
         />
-        
+
         {/* Progress bar for stake amount validation */}
         {amount && (
           <div className="mt-3">
@@ -358,7 +374,7 @@ export function StakeForm() {
           </div>
         )}
       </div>
-      
+
       {/* Offline Mode Indicator */}
       {isOffline && (
         <div className="border rounded-2xl p-4 crystal-glass">
@@ -374,8 +390,15 @@ export function StakeForm() {
       <Tooltip content={isLoading ? 'Transaction in progress...' : isOffline ? 'Transaction will be queued for later' : 'Earn rewards by locking your tokens'}>
         <button
           onClick={handleStake}
+          onKeyDown={(e) => {
+            if (e.ctrlKey && e.key === 'Enter' && !e.defaultPrevented) {
+              e.preventDefault();
+              handleStake();
+            }
+          }}
           disabled={!address || !amount || step !== 'idle' || !userBalance || ethers.parseEther(amount || '0') > userBalance || parseFloat(amount || '0') < 50 || isLoading}
-          className={`w-full btn-crystal-success btn-glow-emerald btn-ripple ${isLoading ? 'opacity-75' : ''}`}
+          className={`w-full btn-crystal-success btn-glow-emerald btn-ripple mobile-touch-target ${isLoading ? 'opacity-75' : ''}`}
+          aria-label={isLoading ? (step === 'approving' ? 'Approving token for staking' : 'Staking tokens in progress') : 'Stake tokens to earn rewards'}
         >
           {isLoading ? (
             <div className="flex items-center justify-center">

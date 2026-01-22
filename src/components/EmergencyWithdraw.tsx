@@ -73,7 +73,7 @@ export function EmergencyWithdraw() {
           notification.type === 'success'
             ? 'bg-green-50 border-green-200 text-green-800'
             : 'bg-red-50 border-red-200 text-red-800'
-        }`}>
+        }`} role="alert" aria-live="assertive">
           <div className="flex items-center">
             <svg className={`w-5 h-5 mr-2 ${
               notification.type === 'success' ? 'text-green-600' : 'text-red-600'
@@ -111,6 +111,7 @@ export function EmergencyWithdraw() {
         onClick={handleEmergencyWithdraw}
         disabled={!address || isEmergencyLoading || stakedAmount === BigInt(0)}
         className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed btn-crystal-primary btn-glow-red btn-ripple shadow-crystal"
+        aria-label={isEmergencyLoading ? "Emergency withdrawing tokens in progress" : stakedAmount === BigInt(0) ? "No tokens to emergency withdraw" : "Emergency withdraw all staked tokens with penalty"}
       >
         {isEmergencyLoading ? (
           <div className="flex items-center justify-center">

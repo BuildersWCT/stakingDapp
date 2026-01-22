@@ -6,10 +6,13 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(), 
+    react(),
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'public',
+      filename: 'sw.js',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Crystal Stakes - Decentralized Staking Platform',
@@ -39,37 +42,9 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        // Disable auto-generated service worker since we have a custom one
-        swSrc: 'public/sw.js',
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\.etherscan\.io\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'etherscan-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.ipfs\.nftstorage\.link\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'ipfs-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
-              }
-            }
-          }
-        ]
-      },
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module'
       }
     })
   ],

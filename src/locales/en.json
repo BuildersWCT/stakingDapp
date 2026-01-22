@@ -1,0 +1,58 @@
+{
+  "common": {
+    "connectWallet": "Connect Wallet",
+    "disconnect": "Disconnect",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "staking": {
+    "stake": "Stake",
+    "unstake": "Unstake",
+    "withdraw": "Withdraw",
+    "claimRewards": "Claim Rewards",
+    "stakeAmount": "Stake Amount",
+    "unstakeAmount": "Unstake Amount",
+    "availableBalance": "Available Balance",
+    "stakedBalance": "Staked Balance",
+    "rewards": "Rewards",
+    "apy": "APY",
+    "lockPeriod": "Lock Period",
+    "days": "days",
+    "approving": "Approving Token...",
+    "stakingTokens": "Staking Tokens...",
+    "minimum": "Minimum",
+    "understandingStaking": "Understanding Staking",
+    "stakingExplanation": "Staking is the process of locking your HAPG tokens in the protocol to earn rewards over time.",
+    "rewardsDesc": "Earn passive income through protocol fees",
+    "lockPeriodDesc": "Tokens are locked until withdrawn",
+    "minimumDesc": "50 HAPG tokens required to stake",
+    "gasFeesDesc": "Estimated 0.001-0.003 ETH for transactions",
+    "safetyWarning": "Safety Warning: Only stake what you can afford to lock up. Large amounts should be staked carefully."
+  },
+  "network": {
+    "switchNetwork": "Switch Network",
+    "wrongNetwork": "Wrong Network",
+    "connectTo": "Connect to"
+  },
+  "notifications": {
+    "transactionSuccess": "Transaction Successful",
+    "transactionFailed": "Transaction Failed",
+    "stakeSuccess": "Staking Successful",
+    "unstakeSuccess": "Unstaking Successful"
+  },
+  "wallet": {
+    "connectWallet": "Connect Wallet",
+    "connecting": "Connecting...",
+    "network": "Network",
+    "viewAccount": "View Account",
+    "switchNetwork": "Switch Network",
+    "walletNotConnected": "Wallet Not Connected",
+    "connectionTimeout": "Connection Timeout",
+    "unsupportedWallet": "Unsupported Wallet"
+  }
+}

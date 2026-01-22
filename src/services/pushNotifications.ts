@@ -9,11 +9,7 @@ interface PushNotificationOptions {
   silent?: boolean;
 }
 
-interface NotificationAction {
-  action: string;
-  title: string;
-  icon?: string;
-}
+
 
 class PushNotificationService {
   private permission: NotificationPermission = 'default';
@@ -26,7 +22,7 @@ class PushNotificationService {
   private async initializeService() {
     // Request permission on service initialization
     await this.requestPermission();
-    
+
     // Get service worker registration
     if ('serviceWorker' in navigator) {
       try {
@@ -165,7 +161,7 @@ class PushNotificationService {
   async notifyPriceAlert(price: string, change: string): Promise<void> {
     const isPositive = change.startsWith('+');
     const emoji = isPositive ? '📈' : '📉';
-    
+
     await this.showNotification({
       title: `${emoji} Price Alert`,
       body: `Crystal token ${change} - Current price: $${price}`,

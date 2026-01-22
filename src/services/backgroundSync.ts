@@ -1,7 +1,19 @@
 import { offlineStorage, type TransactionQueue } from './offlineStorage';
 
 // Service Worker type declarations
+// Service Worker type declarations
 declare const self: ServiceWorkerGlobalScope;
+
+interface SyncManager {
+  register(tag: string): Promise<void>;
+  getTags(): Promise<string[]>;
+}
+
+declare global {
+  interface ServiceWorkerRegistration {
+    sync: SyncManager;
+  }
+}
 
 interface SyncResult {
   success: boolean;
@@ -85,11 +97,11 @@ class BackgroundSyncService {
   private async processTransaction(transaction: TransactionQueue): Promise<void> {
     try {
       const result = await this.executeTransaction(transaction);
-      
+
       if (result.success) {
         console.log(`Transaction ${transaction.id} synced successfully`);
         offlineStorage.removeFromTransactionQueue(transaction.id);
-        
+
         // Dispatch success event
         window.dispatchEvent(new CustomEvent('pwa-transaction-synced', {
           detail: { transactionId: transaction.id, success: true }
@@ -99,29 +111,29 @@ class BackgroundSyncService {
       }
     } catch (error) {
       console.error(`Failed to sync transaction ${transaction.id}:`, error);
-      
+
       // Update retry count
       const newRetryCount = transaction.retryCount + 1;
-      
+
       if (newRetryCount >= this.maxRetries) {
         console.log(`Transaction ${transaction.id} exceeded max retries, removing from queue`);
         offlineStorage.removeFromTransactionQueue(transaction.id);
-        
+
         // Dispatch failure event
         window.dispatchEvent(new CustomEvent('pwa-transaction-failed', {
-          detail: { 
-            transactionId: transaction.id, 
+          detail: {
+            transactionId: transaction.id,
             error: error instanceof Error ? error.message : 'Unknown error',
             retries: newRetryCount
           }
         }));
       } else {
         offlineStorage.updateTransactionRetryCount(transaction.id);
-        
+
         // Dispatch retry event
         window.dispatchEvent(new CustomEvent('pwa-transaction-retry', {
-          detail: { 
-            transactionId: transaction.id, 
+          detail: {
+            transactionId: transaction.id,
             retryCount: newRetryCount,
             error: error instanceof Error ? error.message : 'Unknown error'
           }
@@ -139,14 +151,14 @@ class BackgroundSyncService {
         const messageId = `tx_${Date.now()}_${Math.random()}`;
 
         // Listen for response from main thread
-        const messageHandler = (event: MessageEvent) => {
+        const messageHandler = (event: any) => {
           if (event.data && event.data.type === 'transaction-result' && event.data.messageId === messageId) {
             self.removeEventListener('message', messageHandler);
             resolve(event.data.result);
           }
         };
 
-        self.addEventListener('message', messageHandler);
+        self.addEventListener('message', messageHandler as any);
 
         // Send transaction to main thread for execution
         clients[0].postMessage({

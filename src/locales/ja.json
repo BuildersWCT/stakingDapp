@@ -1,0 +1,48 @@
+{
+  "common": {
+    "connectWallet": "ウォレットを接続",
+    "disconnect": "切断",
+    "loading": "読み込み中...",
+    "error": "エラー",
+    "success": "成功",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "yes": "はい",
+    "no": "いいえ"
+  },
+  "staking": {
+    "stake": "ステーク",
+    "unstake": "アンステーク",
+    "withdraw": "引き出し",
+    "claimRewards": "報酬を請求",
+    "stakeAmount": "ステーク額",
+    "unstakeAmount": "アンステーク額",
+    "availableBalance": "利用可能残高",
+    "stakedBalance": "ステーク済み残高",
+    "rewards": "報酬",
+    "apy": "APY",
+    "lockPeriod": "ロック期間",
+    "days": "日"
+  },
+  "network": {
+    "switchNetwork": "ネットワークを切り替え",
+    "wrongNetwork": "間違ったネットワーク",
+    "connectTo": "接続先"
+  },
+  "notifications": {
+    "transactionSuccess": "取引成功",
+    "transactionFailed": "取引失敗",
+    "stakeSuccess": "ステーク成功",
+    "unstakeSuccess": "アンステーク成功"
+  },
+  "wallet": {
+    "connectWallet": "ウォレットを接続",
+    "connecting": "接続中...",
+    "network": "ネットワーク",
+    "viewAccount": "アカウントを表示",
+    "switchNetwork": "ネットワークを切り替え",
+    "walletNotConnected": "ウォレットが接続されていません",
+    "connectionTimeout": "接続タイムアウト",
+    "unsupportedWallet": "サポートされていないウォレット"
+  }
+}

@@ -63,6 +63,40 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Handle Etherscan API requests (NetworkFirst with 24h cache)
+  if (url.hostname.includes('api.etherscan.io')) {
+    event.respondWith(
+      caches.open('etherscan-api-cache').then((cache) => {
+        return fetch(request)
+          .then((response) => {
+            if (response.status === 200) {
+              cache.put(request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => cache.match(request));
+      })
+    );
+    return;
+  }
+
+  // Handle IPFS/NFTStorage requests (CacheFirst with 1 week cache)
+  if (url.hostname.includes('ipfs.nftstorage.link')) {
+    event.respondWith(
+      caches.match(request).then((response) => {
+        return response || fetch(request).then((networkResponse) => {
+          if (networkResponse.status === 200) {
+            caches.open('ipfs-cache').then((cache) => {
+              cache.put(request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+
   // Handle API requests with network-first strategy
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
@@ -86,10 +120,10 @@ self.addEventListener('fetch', (event) => {
 
   // Handle static assets with cache-first strategy
   if (request.destination === 'document' ||
-      request.destination === 'script' ||
-      request.destination === 'style' ||
-      request.destination === 'image' ||
-      request.destination === 'font') {
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'image' ||
+    request.destination === 'font') {
 
     event.respondWith(
       caches.match(request)
