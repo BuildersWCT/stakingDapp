@@ -27,7 +27,7 @@ class BackgroundSyncService {
   private syncInterval: NodeJS.Timeout | null = null;
 
   // Dependency tracking
-  private getVirtualStakingData(queue: TransactionQueue[], upToIndex?: number): StakingData | null {
+  protected getVirtualStakingData(queue: TransactionQueue[], upToIndex?: number): StakingData | null {
     const baseData = offlineStorage.getStakingData();
     if (!baseData) return null;
 
@@ -55,7 +55,7 @@ class BackgroundSyncService {
     return virtualData;
   }
 
-  private checkTransactionDependencies(transaction: TransactionQueue, queue: TransactionQueue[], currentIndex: number): { canExecute: boolean; reason?: string } {
+  protected checkTransactionDependencies(transaction: TransactionQueue, queue: TransactionQueue[], currentIndex: number): { canExecute: boolean; reason?: string } {
     const virtualData = this.getVirtualStakingData(queue, currentIndex);
 
     switch (transaction.type) {
