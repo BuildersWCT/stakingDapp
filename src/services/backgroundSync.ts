@@ -137,15 +137,16 @@ class BackgroundSyncService {
         const transaction = queue[i];
         const dependencyCheck = this.checkTransactionDependencies(transaction, queue, i);
         if (!dependencyCheck.canExecute) {
-          console.log(`Skipping transaction ${transaction.id} due to dependency: ${dependencyCheck.reason}`);
+          console.log(`Pausing sync due to dependency conflict for transaction ${transaction.id}: ${dependencyCheck.reason}`);
           // Dispatch dependency conflict event
           window.dispatchEvent(new CustomEvent('pwa-transaction-dependency-conflict', {
             detail: {
               transactionId: transaction.id,
-              reason: dependencyCheck.reason
+              reason: dependencyCheck.reason,
+              queuePaused: true
             }
           }));
-          continue;
+          break; // Stop processing further transactions until conflict is resolved
         }
         await this.processTransaction(transaction);
       }
