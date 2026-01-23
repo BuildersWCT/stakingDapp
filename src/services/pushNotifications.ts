@@ -158,6 +158,16 @@ class PushNotificationService {
     });
   }
 
+  async notifyDependencyConflict(reason: string): Promise<void> {
+    await this.showNotification({
+      title: 'Transaction Dependency Conflict',
+      body: `A queued transaction cannot be processed: ${reason}. Please check your staking balance or resolve the issue.`,
+      tag: 'dependency-conflict',
+      data: { reason, timestamp: Date.now() },
+      requireInteraction: true
+    });
+  }
+
   async notifyPriceAlert(price: string, change: string): Promise<void> {
     const isPositive = change.startsWith('+');
     const emoji = isPositive ? '📈' : '📉';
@@ -207,6 +217,12 @@ if (typeof window !== 'undefined') {
     const customEvent = event as CustomEvent;
     const { error, retries } = customEvent.detail;
     await pushNotifications.notifyTransactionFailed('stake', error, retries);
+  });
+
+  window.addEventListener('pwa-transaction-dependency-conflict', async (event: Event) => {
+    const customEvent = event as CustomEvent;
+    const { reason } = customEvent.detail;
+    await pushNotifications.notifyDependencyConflict(reason);
   });
 
   window.addEventListener('online', async () => {

@@ -1,4 +1,4 @@
-import { offlineStorage, type TransactionQueue } from './offlineStorage';
+import { offlineStorage, type TransactionQueue, type StakingData } from './offlineStorage';
 
 // Service Worker type declarations
 // Service Worker type declarations
@@ -25,6 +25,68 @@ class BackgroundSyncService {
   private syncInProgress = false;
   private maxRetries = 3;
   private syncInterval: NodeJS.Timeout | null = null;
+
+  // Dependency tracking
+  protected getVirtualStakingData(queue: TransactionQueue[], upToIndex?: number): StakingData | null {
+    const baseData = offlineStorage.getStakingData();
+    if (!baseData) return null;
+
+    const virtualData: StakingData = { ...baseData };
+
+    const transactions = upToIndex !== undefined ? queue.slice(0, upToIndex) : queue;
+
+    for (const tx of transactions) {
+      switch (tx.type) {
+        case 'stake':
+          const stakeAmount = BigInt((tx.data as { amount: string }).amount);
+          virtualData.stakedAmount = (BigInt(virtualData.stakedAmount) + stakeAmount).toString();
+          break;
+        case 'unstake':
+          const unstakeAmount = BigInt((tx.data as { amount: string }).amount);
+          virtualData.stakedAmount = (BigInt(virtualData.stakedAmount) - unstakeAmount).toString();
+          break;
+        case 'claim':
+          // Claim resets rewards to 0
+          virtualData.rewards = '0';
+          break;
+      }
+    }
+
+    return virtualData;
+  }
+
+  protected checkTransactionDependencies(transaction: TransactionQueue, queue: TransactionQueue[], currentIndex: number): { canExecute: boolean; reason?: string } {
+    const virtualData = this.getVirtualStakingData(queue, currentIndex);
+
+    switch (transaction.type) {
+      case 'approve':
+        return { canExecute: true };
+      case 'stake':
+        // Stake can always be executed, but ideally approve should be before
+        return { canExecute: true };
+      case 'unstake':
+        const unstakeAmount = BigInt((transaction.data as { amount: string }).amount);
+        const availableStaked = virtualData ? BigInt(virtualData.stakedAmount) : 0n;
+        if (availableStaked < unstakeAmount) {
+          return {
+            canExecute: false,
+            reason: `Insufficient staked amount. Available: ${availableStaked.toString()}, Required: ${unstakeAmount.toString()}`
+          };
+        }
+        return { canExecute: true };
+      case 'claim':
+        const availableRewards = virtualData ? BigInt(virtualData.rewards) : 0n;
+        if (availableRewards <= 0n) {
+          return {
+            canExecute: false,
+            reason: 'No rewards available to claim'
+          };
+        }
+        return { canExecute: true };
+      default:
+        return { canExecute: false, reason: 'Unknown transaction type' };
+    }
+  }
 
   constructor() {
     this.initializeSync();
@@ -71,7 +133,21 @@ class BackgroundSyncService {
       const queue = offlineStorage.getTransactionQueue();
       console.log(`Found ${queue.length} transactions to sync`);
 
-      for (const transaction of queue) {
+      for (let i = 0; i < queue.length; i++) {
+        const transaction = queue[i];
+        const dependencyCheck = this.checkTransactionDependencies(transaction, queue, i);
+        if (!dependencyCheck.canExecute) {
+          console.log(`Pausing sync due to dependency conflict for transaction ${transaction.id}: ${dependencyCheck.reason}`);
+          // Dispatch dependency conflict event
+          window.dispatchEvent(new CustomEvent('pwa-transaction-dependency-conflict', {
+            detail: {
+              transactionId: transaction.id,
+              reason: dependencyCheck.reason,
+              queuePaused: true
+            }
+          }));
+          break; // Stop processing further transactions until conflict is resolved
+        }
         await this.processTransaction(transaction);
       }
     } catch (error) {
@@ -106,19 +182,25 @@ class BackgroundSyncService {
     } catch (error) {
       console.error(`Failed to sync transaction ${transaction.id}:`, error);
 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      // Check if failure is due to dependency (though we check before, execution might still fail)
+      const isDependencyError = errorMessage.includes('Insufficient') || errorMessage.includes('rewards');
+
       // Update retry count
       const newRetryCount = transaction.retryCount + 1;
 
-      if (newRetryCount >= this.maxRetries) {
-        console.log(`Transaction ${transaction.id} exceeded max retries, removing from queue`);
+      if (newRetryCount >= this.maxRetries || isDependencyError) {
+        console.log(`Transaction ${transaction.id} failed permanently${isDependencyError ? ' (dependency issue)' : ''}, removing from queue`);
         offlineStorage.removeFromTransactionQueue(transaction.id);
 
-        // Dispatch failure event
+        // Dispatch failure event with dependency flag
         window.dispatchEvent(new CustomEvent('pwa-transaction-failed', {
           detail: {
             transactionId: transaction.id,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retries: newRetryCount
+            error: errorMessage,
+            retries: newRetryCount,
+            isDependencyError
           }
         }));
       } else {
@@ -129,7 +211,7 @@ class BackgroundSyncService {
           detail: {
             transactionId: transaction.id,
             retryCount: newRetryCount,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: errorMessage
           }
         }));
       }
@@ -154,15 +236,29 @@ class BackgroundSyncService {
 
         self.addEventListener('message', messageHandler as any);
 
-      // Timeout after 60 seconds
-      setTimeout(() => {
-        resolve({
-          success: false,
-          transactionId: transaction.id,
-          error: 'Transaction execution timeout'
+        // Send message to main thread
+        clients[0].postMessage({
+          type: 'execute-transaction',
+          messageId,
+          transaction
         });
-      }, 60000);
-    });
+
+        // Timeout after 60 seconds
+        setTimeout(() => {
+          resolve({
+            success: false,
+            transactionId: transaction.id,
+            error: 'Transaction execution timeout'
+          });
+        }, 60000);
+      });
+    } else {
+      return {
+        success: false,
+        transactionId: transaction.id,
+        error: 'No active clients to execute transaction'
+      };
+    }
   }
 
 
