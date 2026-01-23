@@ -32,6 +32,7 @@ interface NotificationContextType {
   showTransaction: (title: string, message?: string, duration?: number) => void;
   showStaking: (title: string, message?: string, duration?: number) => void;
   showEmergency: (title: string, message?: string, duration?: number) => void;
+  showDependencyConflict: (reason: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -180,6 +181,32 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   };
 
+  const showDependencyConflict = (reason: string) => {
+    addNotification({
+      type: 'warning',
+      title: 'Transaction Dependency Conflict',
+      message: `A queued transaction cannot be processed: ${reason}. Please check your staking balance or resolve the issue.`,
+      duration: 8000,
+      category: 'transaction',
+      persistent: true
+    });
+  };
+
+  // Listen for transaction dependency conflict events
+  useEffect(() => {
+    const handleDependencyConflict = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { reason } = customEvent.detail;
+      showDependencyConflict(reason);
+    };
+
+    window.addEventListener('pwa-transaction-dependency-conflict', handleDependencyConflict);
+
+    return () => {
+      window.removeEventListener('pwa-transaction-dependency-conflict', handleDependencyConflict);
+    };
+  }, []);
+
   const value: NotificationContextType = {
     notifications,
     notificationHistory,
@@ -199,6 +226,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     showTransaction,
     showStaking,
     showEmergency,
+    showDependencyConflict,
   };
 
   return (
