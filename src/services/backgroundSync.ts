@@ -182,19 +182,25 @@ class BackgroundSyncService {
     } catch (error) {
       console.error(`Failed to sync transaction ${transaction.id}:`, error);
 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      // Check if failure is due to dependency (though we check before, execution might still fail)
+      const isDependencyError = errorMessage.includes('Insufficient') || errorMessage.includes('rewards');
+
       // Update retry count
       const newRetryCount = transaction.retryCount + 1;
 
-      if (newRetryCount >= this.maxRetries) {
-        console.log(`Transaction ${transaction.id} exceeded max retries, removing from queue`);
+      if (newRetryCount >= this.maxRetries || isDependencyError) {
+        console.log(`Transaction ${transaction.id} failed permanently${isDependencyError ? ' (dependency issue)' : ''}, removing from queue`);
         offlineStorage.removeFromTransactionQueue(transaction.id);
 
-        // Dispatch failure event
+        // Dispatch failure event with dependency flag
         window.dispatchEvent(new CustomEvent('pwa-transaction-failed', {
           detail: {
             transactionId: transaction.id,
-            error: error instanceof Error ? error.message : 'Unknown error',
-            retries: newRetryCount
+            error: errorMessage,
+            retries: newRetryCount,
+            isDependencyError
           }
         }));
       } else {
@@ -205,7 +211,7 @@ class BackgroundSyncService {
           detail: {
             transactionId: transaction.id,
             retryCount: newRetryCount,
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: errorMessage
           }
         }));
       }
