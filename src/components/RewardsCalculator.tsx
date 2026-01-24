@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useReadContract } from 'wagmi';
 import { stakingContractAddress, stakingContractABI } from '../lib/contracts';
 import { ethers } from 'ethers';
-import { EnhancedInput, InfoCard, HelpIcon } from './ui';
+import { EnhancedInput, InfoCard, HelpIcon, CardLoader } from './ui';
 
 export function RewardsCalculator() {
   const [stakeAmount, setStakeAmount] = useState('');
@@ -11,7 +11,7 @@ export function RewardsCalculator() {
   const [projectedRewards, setProjectedRewards] = useState<string>('0');
 
   // Fetch current reward rate (APR)
-  const { data: currentRewardRate } = useReadContract({
+  const { data: currentRewardRate, isLoading: isAprLoading } = useReadContract({
     address: stakingContractAddress,
     abi: stakingContractABI,
     functionName: 'currentRewardRate',
@@ -122,9 +122,13 @@ export function RewardsCalculator() {
                 content="Annual Percentage Rate for staking rewards. This rate may change over time."
               />
             </div>
-            <div className="text-2xl font-bold crystal-gradient-text">
-              {currentAPR}%
-            </div>
+            {isAprLoading ? (
+              <CardLoader message="Loading APR..." />
+            ) : (
+              <div className="text-2xl font-bold crystal-gradient-text">
+                {currentAPR}%
+              </div>
+            )}
           </div>
 
           <div className="p-4 rounded-lg" style={{ background: 'var(--crystal-surface)', border: '1px solid var(--crystal-primary-200)' }}>
