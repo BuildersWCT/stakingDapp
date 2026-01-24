@@ -81,6 +81,26 @@ export function RewardsCalculator() {
               min="0"
               step="0.01"
             />
+            <div className="flex space-x-2 mt-2">
+              <button
+                onClick={() => setStakeAmount('100')}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                100
+              </button>
+              <button
+                onClick={() => setStakeAmount('1000')}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                1K
+              </button>
+              <button
+                onClick={() => setStakeAmount('10000')}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                10K
+              </button>
+            </div>
           </div>
 
           <div>
@@ -107,6 +127,35 @@ export function RewardsCalculator() {
                 <option value="months">Months</option>
                 <option value="years">Years</option>
               </select>
+            </div>
+            <div className="flex space-x-2 mt-2">
+              <button
+                onClick={() => {
+                  setDuration('30');
+                  setDurationUnit('days');
+                }}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                30 Days
+              </button>
+              <button
+                onClick={() => {
+                  setDuration('6');
+                  setDurationUnit('months');
+                }}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                6 Months
+              </button>
+              <button
+                onClick={() => {
+                  setDuration('1');
+                  setDurationUnit('years');
+                }}
+                className="px-3 py-1 text-xs rounded-md crystal-gradient-primary text-white hover:opacity-80 transition-opacity"
+              >
+                1 Year
+              </button>
             </div>
           </div>
         </div>
