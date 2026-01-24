@@ -8,6 +8,7 @@ import { StakePosition } from './components/StakePosition';
 import { ProtocolStats } from './components/ProtocolStats';
 import { SubgraphStats } from './components/SubgraphStats';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { RewardsCalculator } from './components/RewardsCalculator';
 import { TransactionHistory } from './components/TransactionHistory';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { NotificationContainer } from './components/ui/NotificationToast';
@@ -149,6 +150,19 @@ const HomeContent = () => {
               </h2>
             </div>
             <ProtocolStats />
+          </div>
+        </div>
+
+        {/* Rewards Calculator */}
+        <div className="mb-12 sm:mb-16">
+          <div className="crystal-card p-6 sm:p-10 hover:scale-[1.01] transition-all duration-300 animate-fade-in crystal-hover-lift">
+            <div className="flex items-center mb-6 sm:mb-8">
+              <div className="w-3 sm:w-4 h-12 sm:h-16 rounded-full mr-4 sm:mr-6 crystal-gradient-primary"></div>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-light" style={{ color: 'var(--crystal-text-primary)', fontFamily: 'serif' }}>
+                Rewards Calculator
+              </h2>
+            </div>
+            <RewardsCalculator />
           </div>
         </div>
 
